@@ -1,4 +1,4 @@
-package c4.testing.physical;
+package c4.testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Disabled
 @TeleOp(name = "TankDrive Test", group = "Testing")
 public class TankDrive extends OpMode {
-    DcMotor lMotor, rMotor;
+    private DcMotor lMotor, rMotor;
 
     @Override
     public void init() {

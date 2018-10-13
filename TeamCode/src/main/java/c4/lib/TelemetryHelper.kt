@@ -15,23 +15,20 @@ object TelemetryHelper {
      * a choice, and a value if it has.  This is *not* an abusing kotlins anti-null philosophy, because
      * a choice logically should be null before being made
      */
-    fun <T> printChoosableList(caption: String, list: Array<T>, ptr: Int, choose: Boolean): T? {
+    fun <T> chooseFromList(caption: String, list: Array<T>, ptr: Int, choose: Boolean): T? {
         telemetry.addLine(caption)
+        for (i in 0 until list.size) {
+            val pre = if(i == ptr) ">" else "  "
 
-        for (i in 0..(list.size - 1)) {
-            var pre = "  "
-            if(ptr == i)
-                pre = ">"
-
-            telemetry.addLine("$pre $i")
+            telemetry.addLine("$pre ${list[i]}")
         }
+
         telemetry.update()
 
-        return if(choose) {
-            list[ptr]
-        } else {
-            null
+        if(choose) {
+            return list[ptr]
         }
+        return null
     }
 
 }
