@@ -1,6 +1,7 @@
 package c4.prod
 
 import c4.lib.*
+import c4.lib.subsystems.SubSystem
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 
@@ -26,36 +27,40 @@ class C4Autonomous: LinearOpMode() {
     private val aControlled = ControllerHelper()
 
     override fun runOpMode() {
-        TelemetryHelper.init(this)
+        try {
+            TelemetryHelper.init(this)
 
-        var ptr = 0
+            var ptr = 0
 
-        Team@ while (team == null) {
-            team = TelemetryHelper.chooseFromList(
-                    caption = "Press X to toggle, press A to choose",
-                    list = Sides.values(),
-                    ptr = ptr,
-                    choose = aControlled.press(gamepad1.a)
-            )
+            Team@ while (team == null && opModeIsActive()) {
+                team = TelemetryHelper.chooseFromList(
+                        caption = "Press X to toggle, press A to choose",
+                        list = Sides.values(),
+                        ptr = ptr,
+                        choose = aControlled.press(gamepad1.a)
+                )
 
-            if(xControlled.press(gamepad1.x)) ptr = ptr.loopingInc(max = 1)
+                if (xControlled.press(gamepad1.x)) ptr = ptr.loopingInc(max = 1)
 
+            }
+            Position@ while (position == null && opModeIsActive()) {
+                position = TelemetryHelper.chooseFromList(
+                        caption = "Press X to toggle, press A to choose",
+                        list = Positions.values(),
+                        ptr = ptr,
+                        choose = aControlled.press(gamepad1.a)
+                )
+
+                if (xControlled.press(gamepad1.x)) ptr = ptr.loopingInc(max = 1)
+            }
+
+            telemetry.addLine("Team: $team")
+            telemetry.addLine("Position: $position")
+            telemetry.update()
+
+            waitForStart()
+        } catch (e: SubSystem.OpModeStopException) {
+            Trace.log("Autonomous stopped prematurely")
         }
-        Position@ while(position == null) {
-            position = TelemetryHelper.chooseFromList(
-                    caption = "Press X to toggle, press A to choose",
-                    list = Positions.values(),
-                    ptr = ptr,
-                    choose = aControlled.press(gamepad1.a)
-            )
-
-            if(xControlled.press(gamepad1.x)) ptr = ptr.loopingInc(max = 1)
-        }
-
-        telemetry.addLine("Team: $team")
-        telemetry.addLine("Position: $position")
-        telemetry.update()
-
-        waitForStart()
     }
 }

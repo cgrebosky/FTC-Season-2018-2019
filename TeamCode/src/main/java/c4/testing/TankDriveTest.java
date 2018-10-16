@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
 @Disabled
-@TeleOp(name = "TankDrive Test", group = "Testing")
-public class TankDrive extends OpMode {
+@TeleOp(name = "TankDriveTest Test", group = "Testing")
+public class TankDriveTest extends OpMode {
     private DcMotor lMotor, rMotor;
 
     @Override
