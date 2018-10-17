@@ -11,7 +11,11 @@ import java.lang.Exception
  */
 abstract class SubSystem(val opm: OpMode) {
 
-    var lop: LinearOpMode? = null //You should always initialize this in autonomous
+    /**
+     * You should initialize this in autonomous.  The linearopmode object so we can access its state
+     * (i.e., if it is canceled)
+     */
+    var lop: LinearOpMode? = null
 
     /**
      * This should initialize all hardware on the robot, both from the perspective of software (e.g.
@@ -37,7 +41,6 @@ abstract class SubSystem(val opm: OpMode) {
      * initialization.
      */
     @AutoMethod fun checkOpModeCancel() {
-
         //This case should never run, but I'll probably misuse this at least once tbh
         if(lop == null) return
         if(lop!!.isStopRequested) throw OpModeStopException()
@@ -52,10 +55,12 @@ abstract class SubSystem(val opm: OpMode) {
     /**
      * Decorative annotation to mark solely autonomous methods
      */
+    @Retention(AnnotationRetention.SOURCE)
     protected annotation class AutoMethod
 
     /**
      * Decorative annotation to mark solely teleop methods
      */
+    @Retention(AnnotationRetention.SOURCE)
     protected annotation class TeleMethod
 }

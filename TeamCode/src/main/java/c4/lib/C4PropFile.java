@@ -1,10 +1,8 @@
 package c4.lib;
 
-import org.firstinspires.ftc.robotcore.internal.hardware.DragonboardLynxDragonboardIsPresentPin;
 import org.opencv.core.Scalar;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
@@ -42,6 +40,10 @@ public class C4PropFile {
         loadPropFile();
     }
 
+    /**
+     * public version of loadFile.  This is called in our static initializer, so you should never
+     * have to manually call this; however, after updating our file you will have to call this again.
+     */
     public static void loadPropFile() {
         loadFile();
     }
@@ -110,6 +112,10 @@ public class C4PropFile {
     private C4PropFile() {
     }
 
+    /**
+     * Load the file from /sdcard/FIRST/{@link #fileName}.  Internal function
+     * @see #fileName
+     */
     private static void loadFile() {
         if ( ht == null ) ht = new Hashtable();
         try {
@@ -153,6 +159,9 @@ public class C4PropFile {
         }
     }
 
+    /**
+     * Write current hashtable to our file.
+     */
     private static void writeFile() {
         if ( ht == null ) return;
         try {

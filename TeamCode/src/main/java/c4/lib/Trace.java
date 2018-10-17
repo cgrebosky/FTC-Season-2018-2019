@@ -1,6 +1,4 @@
-package c4.lib;//import com.qualcomm.ftccommon.DbgLog;
-//import com.qualcomm.ftccommon.RobotLog;
-//import com.qualcomm.robotcore.util.RobotLog;
+package c4.lib;
 
 import android.util.Log;
 
@@ -12,6 +10,12 @@ import android.util.Log;
 public class Trace {
     public static boolean traceEnable = true;
 
+    /**
+     * Log to our log files.  Messages delivered from this function shall be prefixed with "C4:"
+     * Messages will only appear if {@link #traceEnable} is true
+     *
+     * @param msg the message to log, not including prefix
+     */
     public static void log( String msg ) {
         if ( traceEnable ) {
             //DbgLog.msg( "C4: " + msg );
@@ -20,6 +24,10 @@ public class Trace {
         }
     }
 
+    /**
+     * @see #log(String)
+     * @param msg {@see #log(String)}
+     */
     public static void msg( String msg ) {
         log( msg );
     }
