@@ -1,0 +1,5 @@
+blur: 19
+lowerThreshold: [0, 128, 48]
+upperThreshold: [50, 255, 255]
+turningCoefficient: 1
+forwardCoefficient: 1
