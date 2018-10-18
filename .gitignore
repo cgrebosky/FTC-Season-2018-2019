@@ -1,6 +1,1 @@
-#Remove all files except path
-*
-!*/
-!/TeamCode/src/main/java/c4/**
-
 .DS_STORE
