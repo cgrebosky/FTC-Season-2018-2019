@@ -1,11 +1,14 @@
 package c4.lib.subsystems
 
 import c4.lib.C4PropFile
+import c4.lib.pctError
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.PIDCoefficients
 
-class TankDrive(opm: OpMode): SubSystem(opm = opm) {
+class TankDrive(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
 
     private lateinit var lMotor: DcMotor
     private lateinit var rMotor: DcMotor
@@ -24,21 +27,32 @@ class TankDrive(opm: OpMode): SubSystem(opm = opm) {
     }
 
     /**
-     * Turn a set number of degrees.  Left is negative, right is positive
+     * Turn a set number of degrees via dead reckoning and motor encoders.  Left is negative, right
+     * is positive
      * @param deg the desired change in position in degrees
      */
-    @AutoMethod fun turnDegrees(deg: Int) {
+    @AutoMethod fun turnDead(deg: Int) {
         //TODO: Test this
         val coef = C4PropFile.getInt("turningCoefficient")
+        //While there is a targetPosition property on motors, it should not be used.  We can't stop
+        //the robot while that is being used, so I've decided not to use it.
+        var lPos = lMotor.currentPosition
+        var rPos = rMotor.currentPosition
+        val lTarget = lPos + coef * deg
+        val rTarget = rPos - coef * deg
 
-        lMotor.targetPosition = lMotor.currentPosition + coef * deg
-        rMotor.targetPosition = rMotor.currentPosition - coef * deg
+        val accuracy = 40
+
+        while(pctError(lTarget, lMotor.currentPosition) > accuracy || pctError(rTarget, rMotor.currentPosition) > accuracy) {
+
+        }
     }
 
     /**
-     * Go forward a number of centimeters.  Positive cm is forward, negative is backwards
+     * Go forward a number of centimeters via dead reckoning and motor encoders.  Positive cm is
+     * forward, negative is backwards
      */
-    @AutoMethod fun forwardCm(cm: Int) {
+    @AutoMethod fun forwardDead(cm: Int) {
         //TODO: Test this
         val coef = C4PropFile.getInt("forwardCoefficient")
 

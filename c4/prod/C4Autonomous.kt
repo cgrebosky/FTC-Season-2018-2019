@@ -7,20 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 
 @Autonomous(name = "C4 Autonomous", group = "Prod")
 class C4Autonomous: LinearOpMode() {
-    //Need to set these variables before the actual runOpMode to ignore the stuck-in-loop detection
-    init {
-        msStuckDetectInit = 100_000
-        msStuckDetectInitLoop = 100_000
-        msStuckDetectStart = 100_000
-        msStuckDetectLoop = 100_000
-        msStuckDetectStop = 100_000
-    }
 
-    enum class Sides { RED, BLUE }
-    enum class Positions { FAR, NEAR } //far/near with respect to the crater.
+    private enum class Sides { RED, BLUE }
+    private enum class Positions { FAR, NEAR } //far/near with respect to the crater.
 
-    var team: Sides? = null
-    var position: Positions? = null
+    private var team: Sides? = null
+    private var position: Positions? = null
 
 
     private val xControlled = ControllerHelper()

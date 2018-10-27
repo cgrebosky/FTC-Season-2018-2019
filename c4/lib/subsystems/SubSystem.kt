@@ -6,16 +6,10 @@ import java.lang.Exception
 
 /**
  * Bare bones subsystem class.
- * You should *not* inject any more variables in this class.  They can be accessed via opm or from a
- * static context.
+ * @param lop The linearopmode.  For teleOp-only classes, simply don't include this in your child constructor
+ * @param opm The opmode that our program uses.
  */
-abstract class SubSystem(val opm: OpMode) {
-
-    /**
-     * You should initialize this in autonomous.  The linearopmode object so we can access its state
-     * (i.e., if it is canceled)
-     */
-    var lop: LinearOpMode? = null
+abstract class SubSystem(val lop: LinearOpMode? = null, val opm: OpMode = lop as OpMode) {
 
     /**
      * This should initialize all hardware on the robot, both from the perspective of software (e.g.
@@ -43,7 +37,7 @@ abstract class SubSystem(val opm: OpMode) {
     @AutoMethod fun checkOpModeCancel() {
         //This case should never run, but I'll probably misuse this at least once tbh
         if(lop == null) return
-        if(lop!!.isStopRequested) throw OpModeStopException()
+        if(lop.isStopRequested) throw OpModeStopException()
     }
 
     /**
