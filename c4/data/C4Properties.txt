@@ -1,7 +1,10 @@
 blur: 19
 lowerThreshold: [0, 128, 48]
 upperThreshold: [50, 255, 255]
-turningCoefficient: 1
-forwardCoefficient: 1
-latchOpen: 1
-latchClosed: 0
+latchOpen: 0.7
+latchClosed: 1
+
+flickerLeftClosed: 0.36
+flickerLeftOpen: 0.72
+flickerRightClosed: 0.74
+flickerRightOpen: 0.34

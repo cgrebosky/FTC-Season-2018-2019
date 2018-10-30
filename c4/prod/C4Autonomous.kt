@@ -1,7 +1,7 @@
 package c4.prod
 
 import c4.lib.*
-import c4.lib.subsystems.SubSystem
+import c4.subsystems.SubSystem
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 

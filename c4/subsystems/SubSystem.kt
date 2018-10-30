@@ -1,4 +1,4 @@
-package c4.lib.subsystems
+package c4.subsystems
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
@@ -29,6 +29,12 @@ abstract class SubSystem(val lop: LinearOpMode? = null, val opm: OpMode = lop as
      * lock the hardware in place.
      */
     @TeleMethod abstract fun loop()
+
+    /**
+     * Put all your telemetry statements inside this.  Do not call telemetry.update inside the method,
+     * do that from the main program
+     */
+    open fun telemetry() {}
 
     /**
      * This should be called in *all* autonomous methods to allow for cancelation.  Even in
