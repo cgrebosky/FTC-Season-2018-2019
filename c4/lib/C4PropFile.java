@@ -1,7 +1,5 @@
 package c4.lib;
 
-import org.opencv.core.Scalar;
-
 import java.io.*;
 import java.util.Collections;
 import java.util.Date;
@@ -40,10 +38,6 @@ public class C4PropFile {
         loadPropFile();
     }
 
-    /**
-     * public version of loadFile.  This is called in our static initializer, so you should never
-     * have to manually call this; however, after updating our file you will have to call this again.
-     */
     public static void loadPropFile() {
         loadFile();
     }
@@ -64,23 +58,6 @@ public class C4PropFile {
 
     public static double getDouble(String name) {
         return Double.parseDouble( get(name) );
-    }
-
-    public static Scalar getScalar(String name) {
-        double[] dList = getDoubleArray(name);
-        double[] sized = {0d, 0d, 0d, 0d};
-
-        for(int i=0; i<4; i++) {
-            try {
-                sized[i] = dList[i];
-            } catch (IndexOutOfBoundsException e) {
-                //This is a really awful solution but it works...
-                break;
-            }
-        }
-
-        return new Scalar(sized[0], sized[1], sized[2], sized[3]);
-
     }
 
     public static double[] getDoubleArray(String name) {

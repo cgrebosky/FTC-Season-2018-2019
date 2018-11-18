@@ -1,10 +1,39 @@
-blur: 19
-lowerThreshold: [0, 128, 48]
-upperThreshold: [50, 255, 255]
-latchOpen: 0.7
-latchClosed: 1
+//flicker
+flickerLeftClosed: 0.23
+flickerLeftOpen: 0.63
+flickerRightClosed: 0.49
+flickerRightOpen: 0.11
+cameraOut: 0.67
 
-flickerLeftClosed: 0.36
-flickerLeftOpen: 0.72
-flickerRightClosed: 0.74
-flickerRightOpen: 0.34
+//collector
+collectorSpeed: 0.15
+collectorLowered: 1600
+collectorRaised: 450
+hingeSpeed: 0.5
+
+//depositor
+leftArmUp: 0.7
+leftArmDown: 0.175
+rightArmUp: 0.26
+rightArmDown:0.8
+leftLatchOpen: 0.29
+leftLatchClosed: 0.63
+rightLatchOpen: 0.5
+rightLatchClosed: 0.17
+armSpeed: 0.004
+
+//auto
+autoPower: 0.3
+back1: 2800
+fwd1: 800
+turn1: 1050
+back2: 5060
+turn2: 600
+back3: 1600
+
+//vision
+bottomThresh: 550
+heightThresh: 80
+
+middleFwd: 2550
+sideFwd: 1300

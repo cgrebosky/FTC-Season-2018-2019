@@ -1,4 +1,15 @@
-gamepad1:
-    left joystick y: left drive system
-    right joystick y: right drive system
-    a: toggle latch
+Gamepad 1:
+    Drive:
+        Left Joystick Y: Left Drive System
+        Right Joystick Y: Right Drive System
+    Lift:
+        Left Trigger: Raise Lift
+        Right Trigger: Lower Lift
+    Depositor:
+        D Pad: Raise/Lower Arms
+        B: Release Bucket Latches
+    Collector:
+        Left Bumper: Collect
+        Right Bumper: Push
+        A: Raise/Lower Arm
+        B: Fold/Lower Arm

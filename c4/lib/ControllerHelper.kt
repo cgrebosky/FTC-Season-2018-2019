@@ -29,6 +29,13 @@ class ControllerHelper {
         return state
     }
 
+    fun release(button: Boolean): Boolean {
+        state = prevButton && !button
+
+        update(button)
+        return state
+    }
+
     /**
      * Update the variable values.  Internal method
      */

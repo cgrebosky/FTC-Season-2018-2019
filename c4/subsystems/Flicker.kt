@@ -5,49 +5,58 @@ import c4.lib.C4PropFile
 import c4.lib.ControllerHelper
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import com.qualcomm.robotcore.hardware.Servo
 
 class Flicker(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop = lop, opm = opm) {
-    lateinit var flickerLeft: Servo
-    lateinit var flickerRight: Servo
-
-    val flickerLeftClosed = C4PropFile.getDouble("flickerLeftClosed")
-    val flickerLeftOpen = C4PropFile.getDouble("flickerLeftOpen")
-    val flickerRightClosed = C4PropFile.getDouble("flickerRightClosed")
-    val flickerRightOpen = C4PropFile.getDouble("flickerRightOpen")
 
     val leftToggle = ControllerHelper()
     val rightToggle = ControllerHelper()
 
+    lateinit var leftFlicker: UniversalFlicker
+    lateinit var rightFlicker: UniversalFlicker
+
     override fun init() {
-        flickerLeft = opm.hardwareMap.servo.get("flicker_left")
-        flickerRight = opm.hardwareMap.servo.get("flicker_right")
-    }
 
-    //This is for testing purposes only, it really isn't needed in the actual production code
+        leftFlicker = UniversalFlicker(
+                opm.hardwareMap.servo.get("flicker_left"),
+                C4PropFile.getDouble("flickerLeftOpen"),
+                C4PropFile.getDouble("flickerLeftClosed")
+        )
+        leftFlicker.start()
+        leftFlicker.fastClose()
+
+        rightFlicker = UniversalFlicker(
+                opm.hardwareMap.servo.get("flicker_right"),
+                C4PropFile.getDouble("flickerRightOpen"),
+                C4PropFile.getDouble("flickerRightClosed")
+        )
+        rightFlicker.start()
+        rightFlicker.fastClose()
+    }
     override fun loop() {
-        val left = if(leftToggle.toggle(opm.gamepad1.x)) {
-            flickerLeftOpen
-        } else {
-            flickerLeftClosed
-        }
-        val right = if(rightToggle.toggle(opm.gamepad1.y)) {
-            flickerRightOpen
-        } else {
-            flickerRightClosed
-        }
+        rightFlicker.slowClose()
 
-        //flickerLeft.position = opm.gamepad1.left_trigger.toDouble()
-        //flickerRight.position= opm.gamepad1.right_trigger.toDouble()
-
-        flickerLeft.position = left
-        flickerRight.position = right
+        if(opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right)
+            leftFlicker.slowOpen()
+        else
+            leftFlicker.slowClose()
     }
-
     override fun telemetry() {
         opm.telemetry.addLine("FLICKER")
-        opm.telemetry.addLine("    Left Position: ${flickerLeft.position}")
-        opm.telemetry.addLine("    Right Position: ${flickerRight.position}")
+        opm.telemetry.addLine("    Left Position: ${leftFlicker.position}")
+        opm.telemetry.addLine("    Right Position: ${rightFlicker.position}")
         opm.telemetry.addLine("")
+    }
+    override fun stop() {
+        rightFlicker.kill()
+        leftFlicker.kill()
+    }
+
+    @AutoMethod fun flickMineral(pos: ResourceDetector.GoldBlockPosition?, collector: Collector) {
+        when(pos) {
+            ResourceDetector.GoldBlockPosition.MIDDLE -> collector.goToHovering()
+            ResourceDetector.GoldBlockPosition.LEFT -> leftFlicker.slowOpen()
+            ResourceDetector.GoldBlockPosition.RIGHT -> rightFlicker.slowOpen()
+            null -> {} //Do nothing - Is the penalty worth it tho???  Maybe just default to one?
+        }
     }
 }

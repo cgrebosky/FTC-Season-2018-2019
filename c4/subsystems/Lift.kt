@@ -5,45 +5,71 @@ import c4.lib.ControllerHelper
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.Servo
 
 class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
-    private lateinit var liftMotor: DcMotor
-    private lateinit var latch: Servo
+    public lateinit var liftMotor: DcMotor
 
-    private val latchOpen = C4PropFile.getDouble("latchOpen")
-    private val latchClosed = C4PropFile.getDouble("latchClosed")
-
-    private val latchToggle = ControllerHelper()
+    public lateinit var lowerTouchSensor: DigitalChannel
+    private lateinit var upperTouchSensor: DigitalChannel
 
     override fun init() {
         liftMotor = opm.hardwareMap.dcMotor.get("lift_motor")
-        latch = opm.hardwareMap.servo.get("lift_latch")
-    }
+        liftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
+        lowerTouchSensor = opm.hardwareMap.get(DigitalChannel::class.java, "limit_lower")
+        upperTouchSensor = opm.hardwareMap.get(DigitalChannel::class.java, "limit_upper")
+
+
+    }
     override fun loop() {
-        toggleLatch()
-        liftMotor.power = (opm.gamepad1.left_trigger - opm.gamepad1.right_trigger).toDouble()
-    }
+        var pow = (opm.gamepad1.left_trigger - opm.gamepad1.right_trigger).toDouble()
 
+        if(lowerTouchSensor.state && pow > 0)
+            pow = 0.0
+        if(upperTouchSensor.state && pow < 0)
+            pow = 0.0
+
+        liftMotor.power = pow
+
+
+    }
     override fun telemetry() {
         opm.telemetry.addLine("LIFT")
         opm.telemetry.addLine("    Lift Motor Power: ${liftMotor.power}")
-        opm.telemetry.addLine("    Latch Position: ${latch.position}")
+        opm.telemetry.addLine("    Lower Limit: ${lowerTouchSensor.state}")
+        opm.telemetry.addLine("    Lower Limit: ${upperTouchSensor.state}")
         opm.telemetry.addLine("")
 
     }
 
-    fun toggleLatch() {
-        latchToggle.toggle(opm.gamepad1.a)
+    fun raiseLift(pow: Double) {
 
-        val latchValue = if(latchToggle.state) {
-            latchOpen
-        } else {
-            latchClosed
+        var p = pow
+
+        if(lowerTouchSensor.state && pow < 0)
+            p = 0.0
+        if(upperTouchSensor.state && pow > 0)
+            p = 0.0
+
+        liftMotor.power = p
+    }
+    fun lowerLift(pow: Double) {
+        var p = pow
+
+        if(lowerTouchSensor.state && pow > 0)
+            p = 0.0
+        if(upperTouchSensor.state && pow < 0)
+            p = 0.0
+
+        liftMotor.power = -p
+    }
+    fun completelyRaiseLift(pow: Double) {
+        while(!upperTouchSensor.state) {
+            raiseLift(pow)
         }
-
-        latch.position = latchValue
+        raiseLift(0.0)
     }
 
 }

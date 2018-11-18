@@ -14,28 +14,28 @@ class TankDrive(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
     private lateinit var motorRF: DcMotor
     private lateinit var motorRB: DcMotor
 
+    var pow = C4PropFile.getDouble("autoPower")
+
     override fun init() {
         motorLF = opm.hardwareMap.dcMotor.get("drive_fl")
         motorLB = opm.hardwareMap.dcMotor.get("drive_bl")
         motorRF = opm.hardwareMap.dcMotor.get("drive_fr")
         motorRB = opm.hardwareMap.dcMotor.get("drive_br")
 
-        motorLF.direction = DcMotorSimple.Direction.REVERSE
-        motorLB.direction = DcMotorSimple.Direction.REVERSE
+        motorRF.direction = DcMotorSimple.Direction.REVERSE
+        motorRB.direction = DcMotorSimple.Direction.REVERSE
 
         motorLF.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         motorLB.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         motorRF.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         motorRB.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
-
     override fun loop() {
-        motorLF.power = -opm.gamepad1.left_stick_y.toDouble()
-        motorLB.power = -opm.gamepad1.left_stick_y.toDouble()
-        motorRF.power = -opm.gamepad1.right_stick_y.toDouble()
-        motorRB.power = -opm.gamepad1.right_stick_y.toDouble()
+        motorLF.power = -Math.pow(opm.gamepad1.left_stick_y.toDouble(),3.0)
+        motorLB.power = -Math.pow(opm.gamepad1.left_stick_y.toDouble(),3.0)
+        motorRF.power = -Math.pow(opm.gamepad1.right_stick_y.toDouble(),3.0)
+        motorRB.power = -Math.pow(opm.gamepad1.right_stick_y.toDouble(),3.0)
     }
-
     override fun telemetry() {
         opm.telemetry.addLine("DRIVE")
         opm.telemetry.addLine("    motorLF Power: ${motorLF.power}")
@@ -45,19 +45,65 @@ class TankDrive(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         opm.telemetry.addLine("")
     }
 
-    /**
-     * Turn a set number of degrees via dead reckoning and motor encoders.  Left is negative, right
-     * is positive
-     * @param deg the desired change in position in degrees
-     */
-    @AutoMethod private fun turnDead(ticks: Int) {
+    @AutoMethod fun forward(ticks: Int) {
+        val targetPosition = motorLF.currentPosition + ticks
 
+        while(targetPosition > motorLF.currentPosition) {
+            power(pow)
+            checkOpModeCancel()
+        }
+        zero()
+    }
+    @AutoMethod fun backward(ticks: Int) {
+        val targetPosition = motorLF.currentPosition - ticks
+
+        while (targetPosition < motorLF.currentPosition) {
+            power(-pow)
+            checkOpModeCancel()
+        }
+        zero()
+    }
+    @AutoMethod fun left(ticks: Int) {
+        val targetPosition = motorLF.currentPosition - ticks
+
+        while(targetPosition < motorLF.currentPosition) {
+            left(pow)
+            checkOpModeCancel()
+        }
+        zero()
+    }
+    @AutoMethod fun right(ticks: Int) {
+        val targetPosition = motorLF.currentPosition + ticks
+
+        while (targetPosition > motorLF.currentPosition) {
+            right(pow)
+            checkOpModeCancel()
+        }
+        zero()
     }
 
-    /**
-     * Go forward a number of centimeters via dead reckoning and motor encoders.  Positive cm is
-     * forward, negative is backwards
-     */
-    @AutoMethod private fun forwardDead(ticks: Int) {
+    @AutoMethod fun zero() {
+        motorLF.power = 0.0
+        motorLB.power = 0.0
+        motorRF.power = 0.0
+        motorRB.power = 0.0
+    }
+    @AutoMethod fun power(power: Double) {
+        motorLF.power = power
+        motorLB.power = power
+        motorRF.power = power
+        motorRB.power = power
+    }
+    @AutoMethod fun left(power: Double) {
+        motorLF.power = -power
+        motorLB.power = -power
+        motorRF.power = power
+        motorRB.power = power
+    }
+    @AutoMethod fun right(power: Double) {
+        motorLF.power = power
+        motorLB.power = power
+        motorRF.power = -power
+        motorRB.power = -power
     }
 }

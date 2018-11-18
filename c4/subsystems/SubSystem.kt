@@ -9,7 +9,7 @@ import java.lang.Exception
  * @param lop The linearopmode.  For teleOp-only classes, simply don't include this in your child constructor
  * @param opm The opmode that our program uses.
  */
-abstract class SubSystem(val lop: LinearOpMode? = null, val opm: OpMode = lop as OpMode) {
+abstract class SubSystem(val lop: LinearOpMode? = null, var opm: OpMode = lop as OpMode) {
 
     /**
      * This should initialize all hardware on the robot, both from the perspective of software (e.g.
@@ -21,7 +21,7 @@ abstract class SubSystem(val lop: LinearOpMode? = null, val opm: OpMode = lop as
      * If there is anything different about the teleop init, you should use this class.  For example,
      * if an arm is already unretractably extended in autonomous, you may want to override this.
      */
-    @TeleMethod fun teleInit() { init() }
+    @TeleMethod open fun teleInit() { init() }
 
     /**
      * This should be run every frame of the teleop loop.  It should contain controls, for example.
@@ -37,13 +37,21 @@ abstract class SubSystem(val lop: LinearOpMode? = null, val opm: OpMode = lop as
     open fun telemetry() {}
 
     /**
+     * Stop the robot.  This should be called in the stop() method of an OpMode
+     */
+    open fun stop() {}
+
+    /**
      * This should be called in *all* autonomous methods to allow for cancelation.  Even in
      * initialization.
      */
     @AutoMethod fun checkOpModeCancel() {
         //This case should never run, but I'll probably misuse this at least once tbh
         if(lop == null) return
-        if(lop.isStopRequested) throw OpModeStopException()
+        if(lop.isStopRequested) {
+            stop()
+            throw OpModeStopException()
+        }
     }
 
     /**
