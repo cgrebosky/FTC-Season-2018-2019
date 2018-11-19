@@ -1,4 +1,4 @@
-package c4.testing;
+package c4.testing.subsystems;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;

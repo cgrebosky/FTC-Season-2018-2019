@@ -1,4 +1,4 @@
-package c4.testing
+package c4.testing.subsystems
 
 import c4.lib.C4PropFile
 import c4.subsystems.MineralDepositor

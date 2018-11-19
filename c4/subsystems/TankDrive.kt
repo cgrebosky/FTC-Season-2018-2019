@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver
+import java.io.Serializable
 
 class TankDrive(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
 
@@ -43,6 +45,9 @@ class TankDrive(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         opm.telemetry.addLine("    motorRF Power: ${motorRF.power}")
         opm.telemetry.addLine("    motorRB Power: ${motorRB.power}")
         opm.telemetry.addLine("")
+    }
+    override fun stop() {
+        zero()
     }
 
     @AutoMethod fun forward(ticks: Int) {
@@ -105,5 +110,27 @@ class TankDrive(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         motorLB.power = power
         motorRF.power = -power
         motorRB.power = -power
+    }
+
+    @Throws(OpModeStopException::class)
+    @AutoMethod fun applyData(data: DataHolder) {
+        motorLF.power = data.powLF
+        motorLB.power = data.powLB
+        motorRF.power = data.powRF
+        motorRB.power = data.powRB
+
+        checkOpModeCancel()
+    }
+
+    data class DataHolder(
+            val powLF: Double, val powLB: Double, val powRF: Double, val powRB: Double, val time: Long
+    ): Serializable {
+        constructor(td: TankDrive): this(
+                powLF = td.motorLF.power,
+                powLB = td.motorLB.power,
+                powRF = td.motorRF.power,
+                powRB = td.motorRB.power,
+                time = System.currentTimeMillis()
+        )
     }
 }
