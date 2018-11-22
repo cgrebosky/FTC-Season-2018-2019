@@ -32,6 +32,9 @@ class C4TeleOp: OpMode() {
     }
 
     override fun loop() {
+
+
+
         collector.loop()
         collector.telemetry()
         td.loop()
