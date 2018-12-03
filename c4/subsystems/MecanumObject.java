@@ -5,10 +5,13 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.jetbrains.annotations.Contract;
@@ -16,6 +19,7 @@ import org.jetbrains.annotations.Contract;
 import java.util.Arrays;
 import java.util.Collections;
 
+import c4.lib.C4PropFile;
 import c4.lib.PIDController;
 import c4.lib.Trace;
 
@@ -27,6 +31,10 @@ import c4.lib.Trace;
 public class MecanumObject extends SubSystem {
 
     private static double TURNING_CORRECTION = 30;
+    private static double STALL_VALUE = C4PropFile.getDouble("stall");
+
+    private static double AUTO_TURN_POWER = 0.4; //TODO: Read from C4Properties
+    private static double AUTO_STRAIGHT_POWER = 0.4;
 
     private DcMotor motorRF;
     private DcMotor motorLF;
@@ -135,7 +143,6 @@ public class MecanumObject extends SubSystem {
         motorRB.setPower(motorPowerBR);
         motorLB.setPower(motorPowerBL);
     }
-    //I'm not sure if we really need this tbh.  Drivers can account for this w/o PID, and if our IMU is more accurate, we may not need this for turning.
     public void setMotorPowersPID (double power, double direction) {
         direction = Math.toRadians(direction);
         heading = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX).firstAngle;
@@ -177,31 +184,72 @@ public class MecanumObject extends SubSystem {
         }
     }
     /**
-     * Set the motor behaviour at power = 0
+     * Set the motor behaviour at power = 0 for all motors in this subsystem
      * @param behavior The behaviour.  See {@link DcMotor.ZeroPowerBehavior} for choices
      */
-    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
+    private void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
         motorRF.setZeroPowerBehavior(behavior);
         motorLF.setZeroPowerBehavior(behavior);
         motorRB.setZeroPowerBehavior(behavior);
         motorLB.setZeroPowerBehavior(behavior);
     }
-    public void scaleMotorPowers() {
+    /**
+     * Normalizes the motor powers.  If one power is greater than one, we must change it to one &
+     * the others must change to take that into account
+     */
+    private void scaleMotorPowers() {
         Double[] pwrs = {motorPowerFL, motorPowerBL, motorPowerBR, motorPowerFR};
 
         double max = Collections.max(Arrays.asList(pwrs));
 
-        motorPowerFL /= max;
-        motorPowerFR /= max;
-        motorPowerBL /= max;
-        motorPowerBR /= max;
+        if(max > 1) {
+            motorPowerFL /= max;
+            motorPowerFR /= max;
+            motorPowerBL /= max;
+            motorPowerBR /= max;
+        }
+    }
+    /**
+     * Handles all the controller code.  There is some complicated & scary math in here, so I made a
+     * whole nother function for this instead of just in the loop()
+     */
+    private void moveFree() {
+        double rightStickX = -scaleControllerInput(getOpm().gamepad1.right_stick_x);//read in scaled gamepad values
+        double rightStickY = scaleControllerInput(-getOpm().gamepad1.right_stick_y);
+        double leftStickX = scaleControllerInput(getOpm().gamepad1.left_stick_x);
+
+        double linearVelocityAngle = 0;
+        double linearVelocityMagnitude = 0;
+
+        //use arctan to calculate angle of joystick
+        if (rightStickX > 0 && rightStickY > 0) linearVelocityAngle = Math.atan2(rightStickY, rightStickX);
+        else if (rightStickX < 0 && rightStickY > 0) linearVelocityAngle = Math.atan2(-rightStickX, rightStickY) + (Math.PI/2);
+        else if (rightStickX < 0 && rightStickY < 0) linearVelocityAngle = Math.atan2(-rightStickY, -rightStickX) + Math.PI;
+        else if (rightStickX > 0 && rightStickY < 0) linearVelocityAngle = Math.atan2(rightStickX,-rightStickY) + (3*Math.PI/2);
+        else {
+            if (rightStickX != 0) {
+                linearVelocityAngle = rightStickX < 0 ? 180 : 0;
+            } else {
+                linearVelocityAngle = rightStickY < 0 ? 270 : 90;
+            }
+            linearVelocityAngle = Math.toRadians(linearVelocityAngle);
+        }
+
+        linearVelocityMagnitude = Range.clip((Math.sqrt(Math.pow(rightStickX, 2) + Math.pow(rightStickY, 2))), 0, 1);
+
+        double angularVelocity = leftStickX;
+        setMotorPowers(linearVelocityMagnitude, Math.toDegrees(linearVelocityAngle), angularVelocity);
     }
 
     @Override public void init() {
+
         motorLF = getOpm().hardwareMap.dcMotor.get("drive_fl");
         motorLB = getOpm().hardwareMap.dcMotor.get("drive_bl");
         motorRF = getOpm().hardwareMap.dcMotor.get("drive_fr");
         motorRB = getOpm().hardwareMap.dcMotor.get("drive_br");
+
+        motorRF.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorRB.setDirection(DcMotorSimple.Direction.REVERSE);
 
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //This should *theoretically* avoid slipping as much
 
@@ -217,20 +265,118 @@ public class MecanumObject extends SubSystem {
         imu.initialize(parameters);
     }
     @Override public void loop() {
-        //TODO: Maybe change this controller layout?  RN it is left joystick for turn, right for strafe
-        double turn = scaleControllerInput(getOpm().gamepad1.left_stick_x);
-        double fwd  = scaleControllerInput(getOpm().gamepad1.right_stick_y);
-        double side = scaleControllerInput(getOpm().gamepad1.right_stick_x);
-
-        double dir = Math.atan(side / fwd) * 90 / (2 * Math.PI);
-
-        setMotorPowers(1, dir, turn);
+        moveFree();
     }
     @Override public void stop() {
         setMotorPowers(0,0,0);
     }
 
+    @Override public void telemetry() {
+        getOpm().telemetry.addData("FL Pow", motorPowerFL);
+        getOpm().telemetry.addData("FR Pow", motorPowerFR);
+        getOpm().telemetry.addData("BL Pow", motorPowerBL);
+        getOpm().telemetry.addData("BR Pow", motorPowerBR);
+
+        getOpm().telemetry.addData("Encoder Position", motorLF.getCurrentPosition());
+        getOpm().telemetry.addData("IMU Heading", getIMUAngle());
+    }
+
     @Contract(pure = true) private double scaleControllerInput(double x) {
         return Math.pow(x, 3);
     }
+
+    @AutoMethod public void turnLeft(double power) {
+        setMotorPowers(0,90, power);
+    }
+    @AutoMethod public void turnRight() {
+        setMotorPowers(0,0, -AUTO_TURN_POWER);
+    }
+    @AutoMethod public void fwd() {
+        setMotorPowers(AUTO_STRAIGHT_POWER, 90, 0);
+    }
+    @AutoMethod public void back() {
+        setMotorPowers(-AUTO_STRAIGHT_POWER, 90, 0);
+    }
+    @AutoMethod public void zero() {
+        setMotorPowers(0,0,0);
+    }
+
+    @AutoMethod public void fwdTicks(int ticks) {
+        int targetTicks = motorLF.getTargetPosition() + ticks;
+
+        fwd();
+        while(motorLF.getCurrentPosition() < targetTicks) checkOpModeCancel();
+        zero();
+    }
+    @AutoMethod public void backTicks(int ticks) {
+        int targetTicks = motorLF.getTargetPosition() - ticks;
+
+        back();
+        while(motorLF.getCurrentPosition() > targetTicks) checkOpModeCancel();
+        zero();
+    }
+    /**
+    @AutoMethod public void turnDegrees(double degrees) {
+        double targetAngle = (degrees + getIMUAngle()) % 360;
+
+        double coef = 1;
+        if(degrees > 0) coef = -1;
+
+        final double initialError = 30;
+        final double initialPower = 0.6;
+        final double secondaryError = 10;
+        final double secondaryPower = 0.14;
+
+        double angle = getIMUAngle();
+        coef = Math.signum(targetAngle - angle);
+        do {
+            angle = getIMUAngle();
+            setMotorPowers(0,90, initialPower * coef);
+
+        } while(angle != clamp(angle, targetAngle - initialError, targetAngle + initialError));
+
+        coef = Math.signum(targetAngle - angle);
+        do {
+            angle = getIMUAngle();
+
+            setMotorPowers(0,90, secondaryPower * coef);
+        } while(angle != clamp(angle, targetAngle - secondaryError, targetAngle + secondaryError));
+
+        zero();
+    }
+    */
+
+    @AutoMethod public void turnDegrees(double degrees) {
+        final double targetAngle = (getIMUAngle() + degrees) % 360;
+
+        final PIDController pid = new PIDController(C4PropFile.getDouble("kp"), C4PropFile.getDouble("ki"), C4PropFile.getDouble("kd"));
+
+        final long t = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - t < 3000) {
+            double err = pid.calculateError(targetAngle - getIMUAngle());
+            err = Math.max(Math.abs(err), STALL_VALUE) * Math.signum(err);
+
+            setMotorPowers(0,0, err);
+            getOpm().telemetry.addData("error", err);
+            getOpm().telemetry.update();
+        }
+
+        zero();
+    }
+
+    @AutoMethod public double getIMUAngle() {
+        double data = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
+
+        getOpm().telemetry.addData("Angle", data);
+        getOpm().telemetry.update();
+
+        return data;
+    }
+    //TURN - FIRST ANGLE, LEFT IS +
+
+    public static double clamp(double val, double min, double max) {
+        return Math.max(min, Math.min(max, val));
+    }
+
 }

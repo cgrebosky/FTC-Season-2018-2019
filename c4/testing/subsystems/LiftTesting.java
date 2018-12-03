@@ -1,11 +1,14 @@
 package c4.testing.subsystems;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import c4.subsystems.Lift;
 
-@TeleOp(name = "Lift Testing", group = "Testing")
+@Disabled
+
+@TeleOp(name = "e", group = "Testing")
 public class LiftTesting extends OpMode {
 
     private Lift lift = new Lift(null, this);
