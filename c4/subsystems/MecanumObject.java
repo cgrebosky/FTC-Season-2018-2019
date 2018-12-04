@@ -305,46 +305,25 @@ public class MecanumObject extends SubSystem {
         int targetTicks = motorLF.getTargetPosition() + ticks;
 
         fwd();
-        while(motorLF.getCurrentPosition() < targetTicks) checkOpModeCancel();
+        while(motorLF.getCurrentPosition() < targetTicks) {
+            checkOpModeCancel();
+            getOpm().telemetry.addData("Encoder", motorLF.getCurrentPosition());
+            getOpm().telemetry.update();
+        }
         zero();
     }
     @AutoMethod public void backTicks(int ticks) {
         int targetTicks = motorLF.getTargetPosition() - ticks;
 
         back();
-        while(motorLF.getCurrentPosition() > targetTicks) checkOpModeCancel();
+        while(motorLF.getCurrentPosition() > targetTicks) {
+            checkOpModeCancel();
+            getOpm().telemetry.addData("Encoder", motorLF.getCurrentPosition());
+            getOpm().telemetry.update();
+        }
         zero();
     }
-    /**
-    @AutoMethod public void turnDegrees(double degrees) {
-        double targetAngle = (degrees + getIMUAngle()) % 360;
 
-        double coef = 1;
-        if(degrees > 0) coef = -1;
-
-        final double initialError = 30;
-        final double initialPower = 0.6;
-        final double secondaryError = 10;
-        final double secondaryPower = 0.14;
-
-        double angle = getIMUAngle();
-        coef = Math.signum(targetAngle - angle);
-        do {
-            angle = getIMUAngle();
-            setMotorPowers(0,90, initialPower * coef);
-
-        } while(angle != clamp(angle, targetAngle - initialError, targetAngle + initialError));
-
-        coef = Math.signum(targetAngle - angle);
-        do {
-            angle = getIMUAngle();
-
-            setMotorPowers(0,90, secondaryPower * coef);
-        } while(angle != clamp(angle, targetAngle - secondaryError, targetAngle + secondaryError));
-
-        zero();
-    }
-    */
 
     @AutoMethod public void turnDegrees(double degrees) {
         final double targetAngle = (getIMUAngle() + degrees) % 360;
@@ -368,12 +347,7 @@ public class MecanumObject extends SubSystem {
     }
 
     @AutoMethod public double getIMUAngle() {
-        double data = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
-
-        getOpm().telemetry.addData("Angle", data);
-        getOpm().telemetry.update();
-
-        return data;
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
     //TURN - FIRST ANGLE, LEFT IS +
 

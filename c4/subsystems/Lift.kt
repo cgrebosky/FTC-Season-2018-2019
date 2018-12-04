@@ -29,6 +29,8 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
                 C4PropFile.getDouble("lockOpen"),
                 C4PropFile.getDouble("lockClosed")
         )
+        lock.start()
+        lock.slowOpen()
     }
     override fun loop() {
         var pow = (opm.gamepad1.left_trigger - opm.gamepad1.right_trigger).toDouble()

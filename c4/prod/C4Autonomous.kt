@@ -17,12 +17,11 @@ class C4Autonomous: LinearOpMode() {
 
     private enum class Sides { RED, BLUE }
     private enum class Positions { FAR, NEAR } //far/near with respect to the crater.
-    private var team: Sides? = null
     private var position: Positions? = null
     private val xControlled = ControllerHelper()
     private val aControlled = ControllerHelper()
 
-    private val td = TankDrive(lop = this, opm = this as OpMode)
+    private val mecanum = MecanumObject(this)
     private val lift = Lift(lop = this, opm = this as OpMode)
     private val flicker = Flicker(lop = this, opm = this as OpMode)
     private val collector = Collector(this, this as OpMode)
@@ -34,27 +33,16 @@ class C4Autonomous: LinearOpMode() {
             initAll()
 
             choosePosition()
-            //hang()
 
-            telemetry.addLine("Position: $position")
-            telemetry.addLine("Power: ${lift.liftMotor.power}")
+            telemetry.addLine("Ready")
             telemetry.update()
 
             waitForStart()
 
-            //releaseFromLander()
-
-            sleep(1000)
-
             telemetry.addLine("Unfolding camera")
             telemetry.update()
 
-            depositor.leftArm.slowGoToValue(0.24)
-            depositor.rightArm.slowGoToValue(0.71)
-
-            flicker.leftFlicker.slowGoToValue(C4PropFile.getDouble("cameraOut"))
-
-            sleep(1000)
+            vision.openCamera()
 
             telemetry.addLine("Vision")
             telemetry.update()
@@ -62,7 +50,7 @@ class C4Autonomous: LinearOpMode() {
             vision.activateTF()
 
             while (vision.detectMinerals() == null);
-            sleep(2000) //Wait for it to get the image - it starts out with a black screen
+            sleep(1500) //Wait for it to get the image - it starts out with a black screen
             // and defaults to right, so we have to delay here
 
             var p: ResourceDetector.GoldBlockPosition? = null
@@ -73,20 +61,15 @@ class C4Autonomous: LinearOpMode() {
                 telemetry.update()
             }
 
-            flicker.leftFlicker.slowClose()
+            vision.closeCamera()
 
             sleep(500)
 
-            flicker.flickMineral(p, collector)
+            flickMineral(p)
 
-            sleep(5000)
+            sleep(2000)
 
-
-
-            if(p == ResourceDetector.GoldBlockPosition.MIDDLE)
-                td.backward(C4PropFile.getInt("back1"))
-            else
-                td.backward(C4PropFile.getInt("back1"))
+            mecanum.backTicks(1000)
 
             sleep(500)
 
@@ -94,32 +77,6 @@ class C4Autonomous: LinearOpMode() {
             flicker.rightFlicker.slowClose()
             collector.goToRaised()
 
-            td.forward(C4PropFile.getInt("fwd1"))
-            td.left(C4PropFile.getInt("turn1"))
-            td.backward(C4PropFile.getInt("back2"))
-            td.left(C4PropFile.getInt("turn2"))
-            td.pow /= 3 //Just so we don't slam into the crater
-            td.backward(C4PropFile.getInt("back3"))
-
-            /*Crater side autonomous; Implement in future?
-            td.forwardDead(-1300)
-            sleep(300)
-            td.turnDead(-C4PropFile.getInt("t1"))
-            sleep(300)
-            td.forwardDead(-4143)
-            sleep(300)
-            td.turnDead(-C4PropFile.getInt("t2"))
-            sleep(300)
-            td.forwardDead(-3800)
-            sleep(300)
-            collector.goToLowered()
-            sleep(500)
-            collector.push()
-            sleep(1000)
-            collector.goToRaised()
-            sleep(500)
-            td.backwardDead(10000)
-            */
 
             stopAll()
 
@@ -127,6 +84,15 @@ class C4Autonomous: LinearOpMode() {
         } catch (e: SubSystem.OpModeStopException) {
             Trace.log("Autonomous stopped prematurely")
             stopAll()
+        }
+    }
+
+    fun flickMineral(pos: ResourceDetector.GoldBlockPosition?) {
+        when(pos) {
+            ResourceDetector.GoldBlockPosition.MIDDLE -> collector.goToHovering()
+            ResourceDetector.GoldBlockPosition.LEFT -> flicker.leftFlicker.slowOpen()
+            ResourceDetector.GoldBlockPosition.RIGHT -> flicker.rightFlicker.slowOpen()
+            null -> {} //Do nothing - Is the penalty worth it tho???  Maybe just default to one?
         }
     }
 
@@ -167,7 +133,7 @@ class C4Autonomous: LinearOpMode() {
      * Initailize all our components / subsystems
      */
     fun initAll() {
-        td.init()
+        mecanum.init()
         lift.init()
         flicker.init()
         collector.init()
@@ -178,14 +144,13 @@ class C4Autonomous: LinearOpMode() {
      * Stop all our components / subsystems
      */
     fun stopAll() {
-        td.stop()
+        mecanum.stop()
         lift.stop()
         flicker.stop()
         collector.stop()
         vision.stop()
         depositor.stop()
     }
-
     /**
      * Lower the robot from the lander and release it.
      */
@@ -198,7 +163,4 @@ class C4Autonomous: LinearOpMode() {
 
     }
 
-    fun farPath() {
-
-    }
 }

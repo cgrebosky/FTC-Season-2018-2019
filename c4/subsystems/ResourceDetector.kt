@@ -130,11 +130,18 @@ class ResourceDetector(lop: LinearOpMode?, opm: OpMode): SubSystem(lop = lop, op
         }
     }
 
-    fun initServo() {
+    private fun initServo() {
         cameraFlicker = UniversalFlicker(
                 opm.hardwareMap.servo.get("servo_camera"),
                 C4PropFile.getDouble("cameraOpen"),
                 C4PropFile.getDouble("cameraClosed")
         )
+        cameraFlicker.start()
+    }
+    fun openCamera() {
+        cameraFlicker.slowOpen()
+    }
+    fun closeCamera() {
+        cameraFlicker.slowClose()
     }
 }
