@@ -128,7 +128,7 @@ public class MecanumObject extends SubSystem {
             return (Math.abs(heading - Math.abs(angle)) >= 2.5);
         }
     }
-    private void setMotorPowers (double power, double direction, double rotation) {
+    public void setMotorPowers (double power, double direction, double rotation) {
         direction = Math.toRadians(direction);
 
         motorPowerFL = 1.414*power*Math.sin(direction - (Math.PI / 4)) + rotation;
@@ -302,7 +302,7 @@ public class MecanumObject extends SubSystem {
     }
 
     @AutoMethod public void fwdTicks(int ticks) {
-        int targetTicks = motorLF.getTargetPosition() + ticks;
+        int targetTicks = motorLF.getCurrentPosition() + ticks;
 
         fwd();
         while(motorLF.getCurrentPosition() < targetTicks) {
@@ -313,7 +313,7 @@ public class MecanumObject extends SubSystem {
         zero();
     }
     @AutoMethod public void backTicks(int ticks) {
-        int targetTicks = motorLF.getTargetPosition() - ticks;
+        int targetTicks = motorLF.getCurrentPosition() - ticks;
 
         back();
         while(motorLF.getCurrentPosition() > targetTicks) {
@@ -327,8 +327,6 @@ public class MecanumObject extends SubSystem {
 
     @AutoMethod public void turnDegrees(double degrees) {
         final double targetAngle = (getIMUAngle() + degrees) % 360;
-
-        final PIDController pid = new PIDController(C4PropFile.getDouble("kp"), C4PropFile.getDouble("ki"), C4PropFile.getDouble("kd"));
 
         final long t = System.currentTimeMillis();
 

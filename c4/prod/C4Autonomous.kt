@@ -21,6 +21,8 @@ class C4Autonomous: LinearOpMode() {
     private val xControlled = ControllerHelper()
     private val aControlled = ControllerHelper()
 
+    private val simpleCrater = true
+
     private val mecanum = MecanumObject(this)
     private val lift = Lift(lop = this, opm = this as OpMode)
     private val flicker = Flicker(lop = this, opm = this as OpMode)
@@ -54,12 +56,26 @@ class C4Autonomous: LinearOpMode() {
             // and defaults to right, so we have to delay here
 
             var p: ResourceDetector.GoldBlockPosition? = null
+            var posList = arrayListOf<ResourceDetector.GoldBlockPosition?>()
             val t = time
             while(time - t < 3 && opModeIsActive()) {
                 p = vision.detectMinerals()
+                posList.add(p)
                 telemetry.addLine("$p")
                 telemetry.update()
             }
+
+            val left = posList.filter { it == ResourceDetector.GoldBlockPosition.LEFT }.size
+            val mid = posList.filter { it == ResourceDetector.GoldBlockPosition.MIDDLE }.size
+            val right = posList.filter { it == ResourceDetector.GoldBlockPosition.RIGHT }.size
+
+            if(left > mid && left > right) p = ResourceDetector.GoldBlockPosition.LEFT
+            else if(mid > left && mid > right) p = ResourceDetector.GoldBlockPosition.MIDDLE
+            else if(right > mid && right > left) p = ResourceDetector.GoldBlockPosition.RIGHT
+            else p = ResourceDetector.GoldBlockPosition.RIGHT //Default to right
+
+            telemetry.addData("Position", p)
+            telemetry.update()
 
             vision.closeCamera()
 
@@ -67,24 +83,51 @@ class C4Autonomous: LinearOpMode() {
 
             flickMineral(p)
 
-            sleep(2000)
+            sleep(1000)
 
-            mecanum.backTicks(1000)
+            if(simpleCrater) {
+                if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(C4PropFile.getInt("backMid"))
+                else {
+                    mecanum.backTicks(C4PropFile.getInt("backSides"))
+                }
 
-            sleep(500)
+                flicker.leftFlicker.slowClose()
+                flicker.rightFlicker.slowClose()
+                collector.goToRaised()
+
+                sleep(300)
+
+                mecanum.setMotorPowers(-0.25, 90.0, 0.0)
+
+                sleep(3000)
+
+                while (opModeIsActive()) {}
+            }
+
+            if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(C4PropFile.getInt("backMid"))
+            else {
+                mecanum.backTicks(C4PropFile.getInt("backSides"))
+                mecanum.fwdTicks(C4PropFile.getInt("fwdSides"))
+            }
 
             flicker.leftFlicker.slowClose()
             flicker.rightFlicker.slowClose()
             collector.goToRaised()
 
+            mecanum.turnDegrees(C4PropFile.getDouble("turn1"))
+            mecanum.backTicks(C4PropFile.getInt("back1"))
+            mecanum.turnDegrees(C4PropFile.getDouble("turn2"))
+            mecanum.backTicks(C4PropFile.getInt("back2"))
 
             stopAll()
-
-
         } catch (e: SubSystem.OpModeStopException) {
             Trace.log("Autonomous stopped prematurely")
             stopAll()
         }
+    }
+
+    fun pathSimpleCrater() {
+
     }
 
     fun flickMineral(pos: ResourceDetector.GoldBlockPosition?) {

@@ -18,6 +18,10 @@ public class AutoMecanumTesting extends LinearOpMode {
 
         waitForStart();
 
+        mo.fwdTicks(1000);
+        Thread.sleep(700);
+        mo.backTicks(1000);
+        Thread.sleep(700);
         mo.turnDegrees(90);
         Thread.sleep(700);
         mo.turnDegrees(-90);

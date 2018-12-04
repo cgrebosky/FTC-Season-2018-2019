@@ -86,7 +86,7 @@ class ResourceDetector(lop: LinearOpMode?, opm: OpMode): SubSystem(lop = lop, op
                 "tfodMonitorViewId", "id", opm.hardwareMap.appContext.getPackageName())
         val tfodParameters = TFObjectDetector.Parameters(tfodMonitorViewId)
         tfodParameters.useObjectTracker = false
-        tfodParameters.minimumConfidence = 0.65
+        tfodParameters.minimumConfidence = 0.5
         val tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vf)
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL)
 
