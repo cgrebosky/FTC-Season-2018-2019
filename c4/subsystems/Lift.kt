@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.Servo
 
 class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
-    private lateinit var liftMotor: DcMotor
+    public lateinit var liftMotor: DcMotor
 
     private lateinit var lowerTouchSensor: DigitalChannel
     private lateinit var upperTouchSensor: DigitalChannel

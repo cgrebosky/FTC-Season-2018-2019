@@ -354,7 +354,9 @@ public class MecanumObject extends SubSystem {
         final long t = System.currentTimeMillis();
 
         while (System.currentTimeMillis() - t < 3000) {
-            double err = pid.calculateError(targetAngle - getIMUAngle());
+            //double err = pid.calculateError(targetAngle - getIMUAngle());
+
+            double err = turnError(targetAngle - getIMUAngle());
             err = Math.max(Math.abs(err), STALL_VALUE) * Math.signum(err);
 
             setMotorPowers(0,0, err);
@@ -377,6 +379,10 @@ public class MecanumObject extends SubSystem {
 
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
+    }
+
+    public static double turnError(double err) {
+        return Math.cbrt(err * C4PropFile.getDouble("errCoef"));
     }
 
 }
