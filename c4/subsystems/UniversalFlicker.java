@@ -33,7 +33,7 @@ public class UniversalFlicker extends Thread {
         this.servo = servo;
 
         position = close;
-        fastClose();
+        slowClose();
         running = true;
     }
 

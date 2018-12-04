@@ -35,10 +35,11 @@ class Flicker(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop = lop, opm 
     override fun loop() {
         rightFlicker.slowClose()
 
-        if(opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right)
-            leftFlicker.slowOpen()
-        else
-            leftFlicker.slowClose()
+        //We no longer need this as we can strafe to push
+//        if(opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right)
+//            leftFlicker.slowOpen()
+//        else
+//            leftFlicker.slowClose()
     }
     override fun telemetry() {
         opm.telemetry.addLine("FLICKER")

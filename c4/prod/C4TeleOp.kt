@@ -16,19 +16,27 @@ class C4TeleOp: OpMode() {
 
     private val mecanum = MecanumObject(this)
     private val lift = Lift(opm = this)
-    //private val flicker = Flicker(opm = this)
+    private val flicker = Flicker(opm = this)
     private val collector = Collector(this)
     private val depositor = MineralDepositor(this)
+    private val vision = ResourceDetector(null, this);
 
     override fun init() {
+
+        C4PropFile.loadPropFile()
+        Thread.sleep(200)
 
         collector.init()
         mecanum.init()
         lift.init()
-        //flicker.init()
+        flicker.init()
         depositor.init()
+        vision.teleInit()
 
         collector.lift = lift
+
+        telemetry.addLine("Ready")
+        telemetry.update()
     }
 
     override fun loop() {
@@ -41,10 +49,12 @@ class C4TeleOp: OpMode() {
         mecanum.telemetry()
         lift.loop()
         lift.telemetry()
-        //flicker.loop()
-        //flicker.telemetry()
+        flicker.loop()
+        flicker.telemetry()
         depositor.loop()
         depositor.telemetry()
+        //vision.telemetry()
+        vision.loop()
 
         telemetry.update()
     }
@@ -53,7 +63,8 @@ class C4TeleOp: OpMode() {
         collector.stop()
         mecanum.stop()
         lift.stop()
-        //flicker.stop()
+        flicker.stop()
         depositor.stop()
+        vision.stop()
     }
 }

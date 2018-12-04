@@ -4,12 +4,14 @@ import c4.lib.C4PropFile
 import c4.lib.Trace
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.ClassFactory
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 
-class ResourceDetector(lop: LinearOpMode): SubSystem(lop = lop, opm = lop as OpMode) {
+class ResourceDetector(lop: LinearOpMode?, opm: OpMode): SubSystem(lop = lop, opm = opm) {
+
 
     private val Y_THRESHOLD = 600
 
@@ -19,8 +21,12 @@ class ResourceDetector(lop: LinearOpMode): SubSystem(lop = lop, opm = lop as OpM
 
     private val VUFORIA_KEY = "AYBNsh3/////AAABmUprTCAGrUL7h8odXetdmu1r1oSQv23+Msoyvu1ArLHWA3Sm2bnZ+0sICt5iRYmEcpqRaMLrN0L1h1oQ25TuZZprUiFU2qcf3lqvwaZWDpocwbtc5Kry55NqesfKgDCa/Sjcd5dkwYbwT858hsg9FnV1wZ73KNyJsek9LdqhT7GI8EUmZsGdjgysyN2z57IpvSS/0JydDjY3u+X7oRgWlIR2qfkZJbOf1jqv35hP2R9YqLCIyDvFriMLn+EIy/Ho/JqQuBsfZEJ9U6z14IIniAwfHQ7ZffhfPDx2k1MquqHzZVU0jX5ry6sN5RoKRUrsFfoumfwQI7XX3oG/o9UtIiUpjBzBOxjqFhPFnfttXvcu"
 
+    private val CLOSED = C4PropFile.getDouble("cameraClosed")
+    private val OPEN = C4PropFile.getDouble("cameraOpen")
+    private lateinit var cameraFlicker: UniversalFlicker
+
     private lateinit var vf: VuforiaLocalizer
-    private lateinit var tfod: TFObjectDetector
+    private var tfod: TFObjectDetector? = null
 
     public enum class GoldBlockPosition {
         LEFT, MIDDLE, RIGHT;
@@ -35,17 +41,20 @@ class ResourceDetector(lop: LinearOpMode): SubSystem(lop = lop, opm = lop as OpM
     }
 
     override fun init() {
+        initServo()
         vf = initVuforia()
         tfod = initTF()
     }
     override fun stop() {
-        tfod.deactivate()
+        tfod?.deactivate()
+        cameraFlicker.kill()
     }
     override fun teleInit() {
-
+        initServo()
+        cameraFlicker.slowClose()
     }
     override fun loop() {
-
+        cameraFlicker.slowClose()
     }
     override fun telemetry() {
         val pos = detectMinerals()
@@ -85,11 +94,11 @@ class ResourceDetector(lop: LinearOpMode): SubSystem(lop = lop, opm = lop as OpM
     }
 
     @AutoMethod fun activateTF() {
-        tfod.activate()
+        tfod?.activate()
     }
     @AutoMethod fun detectMinerals(): GoldBlockPosition? {
         //By the time we'll call this, tfod will be nonnull
-        var recognitions: List<Recognition>? = tfod.recognitions
+        var recognitions: List<Recognition>? = tfod?.recognitions
 
         if(recognitions == null) {
             opm.telemetry.addLine("NULL")
@@ -119,5 +128,13 @@ class ResourceDetector(lop: LinearOpMode): SubSystem(lop = lop, opm = lop as OpM
         } else {
             return null //This should never run
         }
+    }
+
+    fun initServo() {
+        cameraFlicker = UniversalFlicker(
+                opm.hardwareMap.servo.get("servo_camera"),
+                C4PropFile.getDouble("cameraOpen"),
+                C4PropFile.getDouble("cameraClosed")
+        )
     }
 }

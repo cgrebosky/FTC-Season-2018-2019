@@ -26,7 +26,7 @@ class C4Autonomous: LinearOpMode() {
     private val lift = Lift(lop = this, opm = this as OpMode)
     private val flicker = Flicker(lop = this, opm = this as OpMode)
     private val collector = Collector(this, this as OpMode)
-    private val vision = ResourceDetector(lop = this)
+    private val vision = ResourceDetector(lop = this, opm = this as OpMode)
     private val depositor = MineralDepositor(this, this)
 
     override fun runOpMode() {

@@ -9,10 +9,13 @@ import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.Servo
 
 class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
-    public lateinit var liftMotor: DcMotor
+    private lateinit var liftMotor: DcMotor
 
-    public lateinit var lowerTouchSensor: DigitalChannel
+    private lateinit var lowerTouchSensor: DigitalChannel
     private lateinit var upperTouchSensor: DigitalChannel
+    private lateinit var lock: UniversalFlicker
+
+    private val dpadToggle = ControllerHelper()
 
     override fun init() {
         liftMotor = opm.hardwareMap.dcMotor.get("lift_motor")
@@ -21,7 +24,11 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         lowerTouchSensor = opm.hardwareMap.get(DigitalChannel::class.java, "limit_lower")
         upperTouchSensor = opm.hardwareMap.get(DigitalChannel::class.java, "limit_upper")
 
-
+        lock = UniversalFlicker(
+                opm.hardwareMap.servo.get("lock"),
+                C4PropFile.getDouble("lockOpen"),
+                C4PropFile.getDouble("lockClosed")
+        )
     }
     override fun loop() {
         var pow = (opm.gamepad1.left_trigger - opm.gamepad1.right_trigger).toDouble()
@@ -34,6 +41,9 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         liftMotor.power = pow
 
 
+        dpadToggle.toggle(opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right)
+        if(dpadToggle.state) lock.slowClose()
+        else lock.slowOpen()
     }
     override fun telemetry() {
         opm.telemetry.addLine("LIFT")
@@ -42,6 +52,9 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         opm.telemetry.addLine("    Lower Limit: ${upperTouchSensor.state}")
         opm.telemetry.addLine("")
 
+    }
+    override fun stop() {
+        lock.kill()
     }
 
     fun raiseLift(pow: Double) {
