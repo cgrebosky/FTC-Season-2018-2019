@@ -86,7 +86,7 @@ class ResourceDetector(lop: LinearOpMode?, opm: OpMode): SubSystem(lop = lop, op
                 "tfodMonitorViewId", "id", opm.hardwareMap.appContext.getPackageName())
         val tfodParameters = TFObjectDetector.Parameters(tfodMonitorViewId)
         tfodParameters.useObjectTracker = false
-        tfodParameters.minimumConfidence = 0.5
+        tfodParameters.minimumConfidence = C4PropFile.getDouble("conf")
         val tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vf)
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL)
 
@@ -101,12 +101,10 @@ class ResourceDetector(lop: LinearOpMode?, opm: OpMode): SubSystem(lop = lop, op
         var recognitions: List<Recognition>? = tfod?.recognitions
 
         if(recognitions == null) {
-            opm.telemetry.addLine("NULL")
             return null
         }
 
         if(recognitions.isEmpty()) {
-            opm.telemetry.addLine("EMPTY")
             return GoldBlockPosition.RIGHT
         }
 

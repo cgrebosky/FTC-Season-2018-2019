@@ -14,6 +14,7 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
     private lateinit var lowerTouchSensor: DigitalChannel
     private lateinit var upperTouchSensor: DigitalChannel
     private lateinit var lock: UniversalFlicker
+    private lateinit var led: DigitalChannel
 
     private val dpadToggle = ControllerHelper()
 
@@ -23,6 +24,9 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
 
         lowerTouchSensor = opm.hardwareMap.get(DigitalChannel::class.java, "limit_lower")
         upperTouchSensor = opm.hardwareMap.get(DigitalChannel::class.java, "limit_upper")
+
+        led = opm.hardwareMap.get(DigitalChannel::class.java, "green_led")
+        led.mode = DigitalChannel.Mode.OUTPUT
 
         lock = UniversalFlicker(
                 opm.hardwareMap.servo.get("lock"),
@@ -46,6 +50,8 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         dpadToggle.toggle(opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right)
         if(dpadToggle.state) lock.slowClose()
         else lock.slowOpen()
+
+        led.state = !dpadToggle.state
     }
     override fun telemetry() {
         opm.telemetry.addLine("LIFT")

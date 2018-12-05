@@ -6,10 +6,15 @@
             <NeveRest20Gearmotor name="drive_bl" port="1" />
             <NeveRest20Gearmotor name="drive_fr" port="2" />
             <NeveRest20Gearmotor name="drive_br" port="3" />
+            <Servo name="servo_camera" port="0" />
             <Servo name="flicker_left" port="1" />
+            <Servo name="lock" port="2" />
             <Servo name="latch_left" port="5" />
             <DigitalDevice name="limit_lower" port="0" />
             <DigitalDevice name="limit_upper" port="1" />
+            <DigitalDevice name="red_LED" port="2" />
+            <DigitalDevice name="green_led" port="4" />
+            <DigitalDevice name="blue_LED" port="6" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
         </LynxModule>
         <LynxModule name="Expansion Hub 2" port="2">

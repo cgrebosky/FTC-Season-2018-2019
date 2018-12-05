@@ -115,6 +115,8 @@ public class UniversalFlicker extends Thread {
     @Override public void run() {
         servo.getPosition();
 
+        servo.setPosition(close);
+
         while (running) {
 
             double coef = (position > servo.getPosition())? 1 : -1;

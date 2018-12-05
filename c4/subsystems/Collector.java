@@ -94,8 +94,8 @@ public class Collector extends SubSystem {
         currentPosition = CollectorPosition.LOWERED;
     }
     @AutoMethod public void goToHovering() {
-        hinge.setPower(hingeSpeed);
-        hinge.setTargetPosition(1500);
+        hinge.setPower(C4PropFile.getDouble("autoHingeSpeed"));
+        hinge.setTargetPosition(C4PropFile.getInt("hover"));
         currentPosition = CollectorPosition.LOWERED;
     }
 

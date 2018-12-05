@@ -339,6 +339,8 @@ public class MecanumObject extends SubSystem {
             setMotorPowers(0,0, err);
             getOpm().telemetry.addData("error", err);
             getOpm().telemetry.update();
+
+            checkOpModeCancel();
         }
 
         zero();

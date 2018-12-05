@@ -21,7 +21,7 @@ class C4Autonomous: LinearOpMode() {
     private val xControlled = ControllerHelper()
     private val aControlled = ControllerHelper()
 
-    private val simpleCrater = true
+    private var simpleCrater = true
 
     private val mecanum = MecanumObject(this)
     private val lift = Lift(lop = this, opm = this as OpMode)
@@ -34,12 +34,15 @@ class C4Autonomous: LinearOpMode() {
         try {
             initAll()
 
-            choosePosition()
+            driverChoosing()
 
             telemetry.addLine("Ready")
             telemetry.update()
 
             waitForStart()
+
+            depositor.rightArm.slowGoToValue(0.73)
+            depositor.leftArm.slowGoToValue(0.24)
 
             telemetry.addLine("Unfolding camera")
             telemetry.update()
@@ -56,18 +59,29 @@ class C4Autonomous: LinearOpMode() {
             // and defaults to right, so we have to delay here
 
             var p: ResourceDetector.GoldBlockPosition? = null
-            var posList = arrayListOf<ResourceDetector.GoldBlockPosition?>()
             val t = time
+
+            var left = 0
+            var mid = 0
+            var right = 0
+            var n = 0
+
             while(time - t < 3 && opModeIsActive()) {
                 p = vision.detectMinerals()
-                posList.add(p)
-                telemetry.addLine("$p")
+
+                telemetry.addLine("Current Position: $p")
                 telemetry.update()
+
+                if(p == ResourceDetector.GoldBlockPosition.LEFT) left++
+                if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mid++
+                if(p == ResourceDetector.GoldBlockPosition.RIGHT) right++
+                if(p == null) n++
             }
 
-            val left = posList.filter { it == ResourceDetector.GoldBlockPosition.LEFT }.size
-            val mid = posList.filter { it == ResourceDetector.GoldBlockPosition.MIDDLE }.size
-            val right = posList.filter { it == ResourceDetector.GoldBlockPosition.RIGHT }.size
+            telemetry.addData("Left", left)
+            telemetry.addData("Mid", mid)
+            telemetry.addData("Right", right)
+            telemetry.addData("Nulls", n)
 
             if(left > mid && left > right) p = ResourceDetector.GoldBlockPosition.LEFT
             else if(mid > left && mid > right) p = ResourceDetector.GoldBlockPosition.MIDDLE
@@ -79,13 +93,14 @@ class C4Autonomous: LinearOpMode() {
 
             vision.closeCamera()
 
-            sleep(500)
+            sleep(300)
 
             flickMineral(p)
 
-            sleep(1000)
+            sleep(2500)
 
-            if(simpleCrater) {
+            if(position == Positions.NEAR) {
+
                 if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(C4PropFile.getInt("backMid"))
                 else {
                     mecanum.backTicks(C4PropFile.getInt("backSides"))
@@ -95,29 +110,55 @@ class C4Autonomous: LinearOpMode() {
                 flicker.rightFlicker.slowClose()
                 collector.goToRaised()
 
-                sleep(300)
+                sleep(500)
 
-                mecanum.setMotorPowers(-0.25, 90.0, 0.0)
+                if (simpleCrater) {
+                    if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(700)
 
-                sleep(3000)
+                    collector.goToLowered()
+                } else {
+                    //TODO: Add this in if we can get it
 
-                while (opModeIsActive()) {}
-            }
-
-            if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(C4PropFile.getInt("backMid"))
-            else {
+                    if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(700)
+                    collector.goToLowered()
+                }
+            } else {
                 mecanum.backTicks(C4PropFile.getInt("backSides"))
+
+                sleep(1000)
+
+                collector.goToHovering()
+
+                sleep(500)
+
+                flicker.leftFlicker.slowClose()
+                flicker.rightFlicker.slowClose()
+
+                sleep(1000)
+                collector.push()
+                sleep(2500)
+                collector.zero()
+                collector.goToRaised()
+                sleep(1000)
+
                 mecanum.fwdTicks(C4PropFile.getInt("fwdSides"))
+
+                mecanum.turnDegrees(C4PropFile.getDouble("farTurn1"))
+                mecanum.backTicks(C4PropFile.getInt("farBack1"))
+                mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
+
+                mecanum.setMotorPowers(-0.25, 120.0, 0.0)
+                sleep(2000)
+                mecanum.zero()
             }
 
-            flicker.leftFlicker.slowClose()
-            flicker.rightFlicker.slowClose()
-            collector.goToRaised()
 
-            mecanum.turnDegrees(C4PropFile.getDouble("turn1"))
-            mecanum.backTicks(C4PropFile.getInt("back1"))
-            mecanum.turnDegrees(C4PropFile.getDouble("turn2"))
-            mecanum.backTicks(C4PropFile.getInt("back2"))
+
+            //6000,
+//            mecanum.turnDegrees(C4PropFile.getDouble("turn1"))
+//            mecanum.backTicks(C4PropFile.getInt("back1"))
+//            mecanum.turnDegrees(C4PropFile.getDouble("turn2"))
+//            mecanum.backTicks(C4PropFile.getInt("back2"))
 
             stopAll()
         } catch (e: SubSystem.OpModeStopException) {
@@ -142,7 +183,7 @@ class C4Autonomous: LinearOpMode() {
     /**
      * Choose our position, near or far from the crater.
      */
-    fun choosePosition() {
+    fun driverChoosing() {
         while(!aControlled.press(gamepad1.y) && !isStopRequested) {
             xControlled.toggle(gamepad1.x)
 
@@ -153,8 +194,20 @@ class C4Autonomous: LinearOpMode() {
             }
 
             telemetry.addLine("Press X to toggle & Y to choose your option")
-            telemetry.addLine("Current Option: $position")
+            telemetry.addLine("Position: $position")
             telemetry.update()
+        }
+
+        if(position == Positions.NEAR) {
+            while (!aControlled.press(gamepad1.y) && !isStopRequested) {
+                xControlled.toggle(gamepad1.x)
+
+                simpleCrater = xControlled.state
+
+                telemetry.addLine("Press X to toggle & Y to choose your option")
+                telemetry.addLine("Simple Crater: $simpleCrater")
+                telemetry.update()
+            }
         }
     }
     /**

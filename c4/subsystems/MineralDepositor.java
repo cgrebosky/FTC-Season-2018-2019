@@ -82,6 +82,11 @@ public class MineralDepositor extends SubSystem {
         }
     }
     @Override public void stop() {
+        leftArm.slowClose();
+        rightArm.slowClose();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {}
         leftArm.kill();
         leftLatch.kill();
         rightArm.kill();
