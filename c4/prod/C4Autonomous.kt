@@ -173,7 +173,9 @@ class C4Autonomous: LinearOpMode() {
 
     fun flickMineral(pos: ResourceDetector.GoldBlockPosition?) {
         when(pos) {
-            ResourceDetector.GoldBlockPosition.MIDDLE -> collector.goToHovering()
+            ResourceDetector.GoldBlockPosition.MIDDLE ->
+                if(simpleCrater) collector.goToLowered()
+                else collector.goToHovering()
             ResourceDetector.GoldBlockPosition.LEFT -> flicker.leftFlicker.slowOpen()
             ResourceDetector.GoldBlockPosition.RIGHT -> flicker.rightFlicker.slowOpen()
             null -> {} //Do nothing - Is the penalty worth it tho???  Maybe just default to one?

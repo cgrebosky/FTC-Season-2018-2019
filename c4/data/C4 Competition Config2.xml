@@ -24,7 +24,7 @@
             <Servo name="arm_right" port="1" />
             <ContinuousRotationServo name="collector_spinner" port="2" />
             <Servo name="arm_left" port="3" />
-            <Servo name="latch_right" port="5" />
+            <Servo name="latch_right" port="4" />
             <LynxEmbeddedIMU name="imu 1" port="0" bus="0" />
         </LynxModule>
     </LynxUsbDevice>

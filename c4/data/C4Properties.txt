@@ -1,13 +1,13 @@
 //flicker
-flickerLeftClosed: 0.63
+flickerLeftClosed: 0.64
 flickerLeftOpen: 1
-flickerRightClosed: 0.4
+flickerRightClosed: 0.41
 flickerRightOpen: 0.05
 cameraOut: 0.67
 
 //collector
 collectorSpeed: 0.15
-collectorLowered: 1600
+collectorLowered: 1530
 collectorRaised: 450
 hover: 1400
 hingeSpeed: 0.5
@@ -17,17 +17,17 @@ autoHingeSpeed: 0.3
 leftArmUp: 0.7
 leftArmDown: 0.183
 rightArmUp: 0.26
-rightArmDown:0.8
-leftLatchOpen: 1
-leftLatchClosed: 0.7
-rightLatchOpen: 0.52
-rightLatchClosed: 0
+rightArmDown:0.796
+leftLatchOpen: 0.25
+leftLatchClosed: 0.6
+rightLatchOpen: 0.67
+rightLatchClosed: 0.3
 armSpeed: 0.004
 
 //vision
 cameraClosed: 0.4
 cameraOpen: 0.83
-bottomThresh: 500
+bottomThresh: 700
 heightThresh: 50
 conf: 0.1
 
@@ -47,5 +47,5 @@ farTurn2: 36
 farBack2: 1000
 
 //lift
-lockOpen: 0.5
-lockClosed: 0.3
+lockOpen: 0.3
+lockClosed: 0.16
