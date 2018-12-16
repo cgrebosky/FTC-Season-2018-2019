@@ -29,7 +29,7 @@ cameraClosed: 0.4
 cameraOpen: 0.83
 bottomThresh: 700
 heightThresh: 50
-conf: 0.1
+conf: 0.6
 
 //auto
 errCoef: -0.0025
