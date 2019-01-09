@@ -1,5 +1,6 @@
 package c4.subsystems
 
+import c4.lib.C4PropFile
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import java.lang.Exception
@@ -10,6 +11,13 @@ import java.lang.Exception
  * @param opm The opmode that our program uses.
  */
 abstract class SubSystem(val lop: LinearOpMode? = null, var opm: OpMode = lop as OpMode) {
+
+    /**
+     * Just to make sure all config files are up-to-date
+     */
+    init {
+        C4PropFile.loadPropFile()
+    }
 
     /**
      * This should initialize all hardware on the robot, both from the perspective of software (e.g.

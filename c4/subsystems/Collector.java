@@ -23,6 +23,7 @@ public class Collector extends SubSystem {
 
     private CRServo spinner;
     public DcMotor hinge;
+    private DcMotor extender;
 
     private double collectorSpeed = C4PropFile.getDouble("collectorSpeed");
     public double loweredPosition = C4PropFile.getDouble("collectorLowered");
@@ -42,6 +43,8 @@ public class Collector extends SubSystem {
     @Override public void init() {
         hinge = getOpm().hardwareMap.dcMotor.get("collector_hinge");
         hinge.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        extender = getOpm().hardwareMap.dcMotor.get("collector_extender");
 
         spinner = getOpm().hardwareMap.crservo.get("collector_spinner");
     }
@@ -66,12 +69,21 @@ public class Collector extends SubSystem {
         }
 
 
+        //Negative extends outward
+        double pow = getOpm().gamepad2.left_trigger - getOpm().gamepad2.right_trigger;
+
+        if(extender.getCurrentPosition() <= -3000 && pow < 0) pow = 0;
+        if(extender.getCurrentPosition() >= -20 && pow > 0) pow = 0;
+
+        extender.setPower(pow);
+
 
     }
     @Override public void telemetry() {
         getOpm().telemetry.addLine("Collector\n");
         getOpm().telemetry.addData("    Hinge Position", hinge.getCurrentPosition());
         getOpm().telemetry.addData("    Spinner Power", spinner.getPower());
+        getOpm().telemetry.addData("    Extender Position", extender.getCurrentPosition());
 
     }
     @Override public void stop() {

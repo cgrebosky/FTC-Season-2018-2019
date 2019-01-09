@@ -9,17 +9,15 @@ import com.qualcomm.robotcore.hardware.CRServo
 @TeleOp(name = "Collector Testing", group = "Testing")
 class CollectorTesting: OpMode() {
 
-    //val c = Collector(this)
-    lateinit var crs: CRServo
+    val c = Collector(this)
+
 
     override fun init() {
-        crs = hardwareMap.crservo.get("collector_spinner")
+        c.init()
     }
 
     override fun loop() {
-        crs.power = gamepad1.left_stick_y.toDouble()
-
-        telemetry.addLine(""+crs.power)
-        telemetry.update()
+        c.loop()
+        c.telemetry()
     }
 }
