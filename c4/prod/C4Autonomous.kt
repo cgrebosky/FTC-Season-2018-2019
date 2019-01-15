@@ -41,9 +41,10 @@ class C4Autonomous: LinearOpMode() {
 
             waitForStart()
 
-            depositor.rightArm.slowGoToValue(0.73)
-            depositor.leftArm.slowGoToValue(0.24)
+            //TODO: Make arms go up for autonomous
 
+
+            //region vision processing
             telemetry.addLine("Unfolding camera")
             telemetry.update()
 
@@ -92,12 +93,13 @@ class C4Autonomous: LinearOpMode() {
             telemetry.update()
 
             vision.closeCamera()
+            //endregion vision processing
 
             sleep(300)
 
             flickMineral(p)
 
-            sleep(2500)
+            sleep(1500)
 
             if(position == Positions.NEAR) {
 
@@ -119,8 +121,37 @@ class C4Autonomous: LinearOpMode() {
                 } else {
                     //TODO: Add this in if we can get it
 
-                    if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(700)
-                    collector.goToLowered()
+                    if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.fwdTicks(C4PropFile.getInt("backMid") - C4PropFile.getInt("nearDiff"))
+                    else mecanum.fwdTicks(C4PropFile.getInt("backSides") - C4PropFile.getInt("nearDiff"))
+
+                    mecanum.turnDegrees(C4PropFile.getDouble("nearTurn1"))
+
+                    mecanum.backTicks(C4PropFile.getInt("nearBack1"))
+                    mecanum.turnDegrees(C4PropFile.getDouble("nearTurn2"))
+                    mecanum.backTicks(C4PropFile.getInt("nearBack2"))
+                    mecanum.turnDegrees(C4PropFile.getDouble("nearTurn3"))
+                    mecanum.backTicks(C4PropFile.getInt("nearBack3"))
+
+                    collector.goToHovering()
+
+                    sleep(500)
+
+                    flicker.leftFlicker.slowClose()
+                    flicker.rightFlicker.slowClose()
+
+                    sleep(1000)
+                    collector.push()
+                    sleep(2500)
+                    collector.zero()
+                    collector.goToRaised()
+                    sleep(1000)
+
+                    mecanum.fwdTicks(C4PropFile.getInt("nearFwd1"))
+                    mecanum.setMotorPowers(0.25, C4PropFile.getDouble("nearEndDir"), 0.0)
+                    sleep(2000)
+                    mecanum.zero()
+
+
                 }
             } else {
                 mecanum.backTicks(C4PropFile.getInt("backSides"))
@@ -147,7 +178,7 @@ class C4Autonomous: LinearOpMode() {
                 mecanum.backTicks(C4PropFile.getInt("farBack1"))
                 mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
 
-                mecanum.setMotorPowers(-0.25, 120.0, 0.0)
+                mecanum.setMotorPowers(-0.25, 180.0, 0.0)
                 sleep(2000)
                 mecanum.zero()
             }
@@ -213,7 +244,7 @@ class C4Autonomous: LinearOpMode() {
         }
     }
     /**
-     * This is how we start to hang our robot.  It does not simply statically hang in place, this
+     * This is how we start to hang our robot.  It does not just statically hang in place, this
      * allows us to control the robot, starting the hanging routine, and following that hangs statically
      */
     fun hang() {

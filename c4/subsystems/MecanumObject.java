@@ -277,7 +277,7 @@ public class MecanumObject extends SubSystem {
         getOpm().telemetry.addData("BL Pow", motorPowerBL);
         getOpm().telemetry.addData("BR Pow", motorPowerBR);
 
-        getOpm().telemetry.addData("Encoder Position", motorLF.getCurrentPosition());
+        getOpm().telemetry.addData("Encoder Position", motorRB.getCurrentPosition());
         getOpm().telemetry.addData("IMU Heading", getIMUAngle());
     }
 
@@ -302,23 +302,23 @@ public class MecanumObject extends SubSystem {
     }
 
     @AutoMethod public void fwdTicks(int ticks) {
-        int targetTicks = motorLF.getCurrentPosition() + ticks;
+        int targetTicks = motorRB.getCurrentPosition() + ticks;
 
         fwd();
-        while(motorLF.getCurrentPosition() < targetTicks) {
+        while(motorRB.getCurrentPosition() < targetTicks) {
             checkOpModeCancel();
-            getOpm().telemetry.addData("Encoder", motorLF.getCurrentPosition());
+            getOpm().telemetry.addData("Encoder", motorRB.getCurrentPosition());
             getOpm().telemetry.update();
         }
         zero();
     }
     @AutoMethod public void backTicks(int ticks) {
-        int targetTicks = motorLF.getCurrentPosition() - ticks;
+        int targetTicks = motorRB.getCurrentPosition() - ticks;
 
         back();
-        while(motorLF.getCurrentPosition() > targetTicks) {
+        while(motorRB.getCurrentPosition() > targetTicks) {
             checkOpModeCancel();
-            getOpm().telemetry.addData("Encoder", motorLF.getCurrentPosition());
+            getOpm().telemetry.addData("Encoder", motorRB.getCurrentPosition());
             getOpm().telemetry.update();
         }
         zero();
@@ -330,7 +330,7 @@ public class MecanumObject extends SubSystem {
 
         final long t = System.currentTimeMillis();
 
-        while (System.currentTimeMillis() - t < 3000) {
+        while (System.currentTimeMillis() - t < 1500) {
             //double err = pid.calculateError(targetAngle - getIMUAngle());
 
             double err = turnError(targetAngle - getIMUAngle());

@@ -73,7 +73,7 @@ public class Collector extends SubSystem {
         double pow = getOpm().gamepad2.left_trigger - getOpm().gamepad2.right_trigger;
 
         if(extender.getCurrentPosition() <= -3000 && pow < 0) pow = 0;
-        if(extender.getCurrentPosition() >= -20 && pow > 0) pow = 0;
+        if(extender.getCurrentPosition() >= -80 && pow > 0) pow = 0;
 
         extender.setPower(pow);
 
@@ -84,6 +84,7 @@ public class Collector extends SubSystem {
         getOpm().telemetry.addData("    Hinge Position", hinge.getCurrentPosition());
         getOpm().telemetry.addData("    Spinner Power", spinner.getPower());
         getOpm().telemetry.addData("    Extender Position", extender.getCurrentPosition());
+        getOpm().telemetry.addData("    Extender Power", extender.getPower());
 
     }
     @Override public void stop() {

@@ -16,44 +16,18 @@ class DepositorTesting: OpMode() {
         C4PropFile.loadPropFile()
     }
 
-    lateinit var leftArm: UniversalFlicker
-    lateinit var rightArm: UniversalFlicker
+    val md = MineralDepositor(this)
 
     override fun init() {
-        leftArm = UniversalFlicker(
-                hardwareMap.servo.get("arm_left"),
-                C4PropFile.getDouble("leftArmUp"),
-                C4PropFile.getDouble("leftArmDown")
-        )
-        leftArm.start()
-        leftArm.speed = C4PropFile.getDouble("armSpeed")
-
-        rightArm = UniversalFlicker(
-                hardwareMap.servo.get("arm_right"),
-                C4PropFile.getDouble("rightArmUp"),
-                C4PropFile.getDouble("rightArmDown")
-        )
-        rightArm.start()
-        rightArm.speed = C4PropFile.getDouble("armSpeed")
+        md.init()
     }
 
     override fun loop() {
-       if(gamepad1.a)
-           leftArm.slowOpen()
-        else
-           leftArm.slowClose()
-
-        if(gamepad1.b)
-            rightArm.slowOpen()
-        else
-            rightArm.slowClose()
-
-        telemetry.addLine("left arm pos: ${leftArm.position}")
-        telemetry.addLine("right arm pos: ${rightArm.position}")
+        md.loop()
+        md.telemetry()
     }
 
     override fun stop() {
-        leftArm.kill()
-        rightArm.kill()
+        md.stop()
     }
 }
