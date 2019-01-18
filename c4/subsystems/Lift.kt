@@ -57,7 +57,7 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         opm.telemetry.addLine("LIFT")
         opm.telemetry.addLine("    Lift Motor Power: ${liftMotor.power}")
         opm.telemetry.addLine("    Lower Limit: ${lowerTouchSensor.state}")
-        opm.telemetry.addLine("    Lower Limit: ${upperTouchSensor.state}")
+        opm.telemetry.addLine("    Upper Limit: ${upperTouchSensor.state}")
         opm.telemetry.addLine("")
 
     }
@@ -87,7 +87,7 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         liftMotor.power = -p
     }
     fun completelyRaiseLift(pow: Double) {
-        while(!upperTouchSensor.state) {
+        while(!lowerTouchSensor.state) {
             raiseLift(pow)
         }
         raiseLift(0.0)

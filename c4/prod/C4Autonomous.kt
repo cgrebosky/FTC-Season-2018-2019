@@ -36,10 +36,14 @@ class C4Autonomous: LinearOpMode() {
 
             driverChoosing()
 
+            hang()
+
             telemetry.addLine("Ready")
             telemetry.update()
 
             waitForStart()
+
+            releaseFromLander()
 
             //TODO: Make arms go up for autonomous
 
@@ -99,7 +103,7 @@ class C4Autonomous: LinearOpMode() {
 
             flickMineral(p)
 
-            sleep(1500)
+            sleep(2500)
 
             if(position == Positions.NEAR) {
 
@@ -119,7 +123,6 @@ class C4Autonomous: LinearOpMode() {
 
                     collector.goToLowered()
                 } else {
-                    //TODO: Add this in if we can get it
 
                     if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.fwdTicks(C4PropFile.getInt("backMid") - C4PropFile.getInt("nearDiff"))
                     else mecanum.fwdTicks(C4PropFile.getInt("backSides") - C4PropFile.getInt("nearDiff"))
@@ -165,9 +168,9 @@ class C4Autonomous: LinearOpMode() {
                 flicker.leftFlicker.slowClose()
                 flicker.rightFlicker.slowClose()
 
-                sleep(1000)
+                sleep(2000)
                 collector.push()
-                sleep(2500)
+                sleep(1500)
                 collector.zero()
                 collector.goToRaised()
                 sleep(1000)
@@ -178,18 +181,11 @@ class C4Autonomous: LinearOpMode() {
                 mecanum.backTicks(C4PropFile.getInt("farBack1"))
                 mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
 
-                mecanum.setMotorPowers(-0.25, 180.0, 0.0)
+                mecanum.setMotorPowers(0.25, 330.0, 0.0)
+                collector.goToLowered()
                 sleep(2000)
                 mecanum.zero()
             }
-
-
-
-            //6000,
-//            mecanum.turnDegrees(C4PropFile.getDouble("turn1"))
-//            mecanum.backTicks(C4PropFile.getInt("back1"))
-//            mecanum.turnDegrees(C4PropFile.getDouble("turn2"))
-//            mecanum.backTicks(C4PropFile.getInt("back2"))
 
             stopAll()
         } catch (e: SubSystem.OpModeStopException) {
@@ -198,15 +194,11 @@ class C4Autonomous: LinearOpMode() {
         }
     }
 
-    fun pathSimpleCrater() {
-
-    }
-
     fun flickMineral(pos: ResourceDetector.GoldBlockPosition?) {
         when(pos) {
             ResourceDetector.GoldBlockPosition.MIDDLE ->
-                if(simpleCrater) collector.goToLowered()
-                else collector.goToHovering()
+                /*if(simpleCrater) collector.goToLowered()
+                else*/ collector.goToHovering()
             ResourceDetector.GoldBlockPosition.LEFT -> flicker.leftFlicker.slowOpen()
             ResourceDetector.GoldBlockPosition.RIGHT -> flicker.rightFlicker.slowOpen()
             null -> {} //Do nothing - Is the penalty worth it tho???  Maybe just default to one?
@@ -284,11 +276,16 @@ class C4Autonomous: LinearOpMode() {
      * Lower the robot from the lander and release it.
      */
     fun releaseFromLander() {
-        lift.raiseLift(0.2)
-        Thread.sleep(3000)
-        lift.raiseLift(0.7)
-        Thread.sleep(1000)
-        lift.raiseLift(0.0)
+        lift.completelyRaiseLift(0.4)
+        Thread.sleep(500)
+        mecanum.setMotorPowers(0.3, 0.0, 0.0)
+        Thread.sleep(100);
+        mecanum.backTicks(200)
+        mecanum.setMotorPowers(-0.3,0.0,0.0)
+        Thread.sleep(70)
+        mecanum.setMotorPowers(0.0,0.0,0.0)
+        mecanum.fwdTicks(100)
+
 
     }
 
