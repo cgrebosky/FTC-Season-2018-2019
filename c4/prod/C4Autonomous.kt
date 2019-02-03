@@ -101,9 +101,9 @@ class C4Autonomous: LinearOpMode() {
 
             sleep(300)
 
-            flickMineral(p)
-
-            sleep(2500)
+            if(p == ResourceDetector.GoldBlockPosition.MIDDLE) {
+                collector.goToHovering()
+            }
 
             if(position == Positions.NEAR) {
 
@@ -111,6 +111,11 @@ class C4Autonomous: LinearOpMode() {
                 else {
                     mecanum.backTicks(C4PropFile.getInt("backSides"))
                 }
+
+                if(p==ResourceDetector.GoldBlockPosition.LEFT) flicker.leftFlicker.fastOpen()
+                if(p==ResourceDetector.GoldBlockPosition.RIGHT) flicker.rightFlicker.fastOpen()
+
+                sleep(1000)
 
                 flicker.leftFlicker.slowClose()
                 flicker.rightFlicker.slowClose()
@@ -163,16 +168,21 @@ class C4Autonomous: LinearOpMode() {
 
                 collector.goToHovering()
 
-                sleep(500)
+                if(p==ResourceDetector.GoldBlockPosition.LEFT) flicker.leftFlicker.fastOpen()
+                if(p==ResourceDetector.GoldBlockPosition.RIGHT) flicker.rightFlicker.fastOpen()
+
+                sleep(1000)
 
                 flicker.leftFlicker.slowClose()
                 flicker.rightFlicker.slowClose()
 
+                collector.extend()
                 sleep(2000)
                 collector.push()
                 sleep(1500)
                 collector.zero()
                 collector.goToRaised()
+                collector.retract()
                 sleep(1000)
 
                 mecanum.fwdTicks(C4PropFile.getInt("fwdSides"))
@@ -181,7 +191,7 @@ class C4Autonomous: LinearOpMode() {
                 mecanum.backTicks(C4PropFile.getInt("farBack1"))
                 mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
 
-                mecanum.setMotorPowers(0.25, 330.0, 0.0)
+                mecanum.setMotorPowers(0.25, 30.0, 0.0)
                 collector.goToLowered()
                 sleep(2000)
                 mecanum.zero()
@@ -276,13 +286,13 @@ class C4Autonomous: LinearOpMode() {
      * Lower the robot from the lander and release it.
      */
     fun releaseFromLander() {
-        lift.completelyRaiseLift(0.4)
-        Thread.sleep(500)
-        mecanum.setMotorPowers(0.3, 0.0, 0.0)
-        Thread.sleep(100);
-        mecanum.backTicks(200)
-        mecanum.setMotorPowers(-0.3,0.0,0.0)
-        Thread.sleep(70)
+        lift.goToRaised()
+        Thread.sleep(300)
+        mecanum.setMotorPowers(-0.3, 0.0, 0.0)
+        Thread.sleep(500);
+        mecanum.backTicks(500)
+        mecanum.setMotorPowers(0.3,0.0,0.0)
+        Thread.sleep(350)
         mecanum.setMotorPowers(0.0,0.0,0.0)
         mecanum.fwdTicks(100)
 

@@ -292,10 +292,10 @@ public class MecanumObject extends SubSystem {
         setMotorPowers(0,0, -AUTO_TURN_POWER);
     }
     @AutoMethod public void fwd() {
-        setMotorPowers(AUTO_STRAIGHT_POWER, 90, 0);
+        setMotorPowers(-AUTO_STRAIGHT_POWER, 90, 0);
     }
     @AutoMethod public void back() {
-        setMotorPowers(-AUTO_STRAIGHT_POWER, 90, 0);
+        setMotorPowers(AUTO_STRAIGHT_POWER, 90, 0);
     }
     @AutoMethod public void zero() {
         setMotorPowers(0,0,0);

@@ -1,51 +1,67 @@
 //flicker
-flickerLeftClosed: 0.64
-flickerLeftOpen: 1
-flickerRightClosed: 0.41
-flickerRightOpen: 0.05
+flickerLeftClosed: 0.21
+flickerLeftOpen: 0.72
+flickerRightClosed: 0.615
+flickerRightOpen: 0.02
 cameraOut: 0.67
 
 //collector
-collectorSpeed: 0.15
-collectorLowered: 1530
+collectorSpeed: 0.8
+collectorLowered: 1620
 collectorRaised: 450
-hover: 1400
-hingeSpeed: 0.5
+hover: 1450
+hingeSpeed: 0.7
 autoHingeSpeed: 0.3
 
 //depositor
-leftArmUp: 0.7
-leftArmDown: 0.183
-rightArmUp: 0.26
-rightArmDown:0.796
-leftLatchOpen: 0.25
-leftLatchClosed: 0.6
-rightLatchOpen: 0.67
-rightLatchClosed: 0.3
-armSpeed: 0.004
+leftLatchOpen: 0.9
+leftLatchClosed: 0.7
+rightLatchOpen: 0.25
+rightLatchClosed: 0.5
 
 //vision
 cameraClosed: 0.4
 cameraOpen: 0.83
-bottomThresh: 700
-heightThresh: 50
-conf: 0.6
+bottomThresh: 550 //550 for 6, 800 for other
+heightThresh: 60
+conf: 0.1
 
 //auto
 errCoef: -0.0025
 pow: 0.333333
 stall: 0.065
 
-backMid: 2050
-backSides: 3600
-fwdSides: 1100
+backMid: 1450
+backSides: 2100
+fwdSides: 900
 
 //farside
-farTurn1: 90
-farBack1: 6800
-farTurn2: 36
+farTurn1: 80
+farBack1: 6200
+farTurn2: 50
 farBack2: 1000
+
+//nearside
+nearDiff: 1800
+nearTurn1: 85
+nearBack1: 5900
+nearTurn2: 40
+nearBack2: 2800
+nearTurn3: 10
+nearBack3: 400
+nearFwd1: 6300
+nearEndDir: 330
 
 //lift
 lockOpen: 0.3
 lockClosed: 0.16
+liftUpPosition: 3030
+
+
+depositorUp: -1150
+depositorHover: -50
+depositorDown: 0
+depositorPower: 1
+depositorDiv: 1000
+depositorExp: 1.3
+depositorDownPower: 0.3

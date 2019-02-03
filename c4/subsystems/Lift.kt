@@ -20,6 +20,7 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
 
     override fun init() {
         liftMotor = opm.hardwareMap.dcMotor.get("lift_motor")
+
         liftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         lowerTouchSensor = opm.hardwareMap.get(DigitalChannel::class.java, "limit_lower")
@@ -52,6 +53,8 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         else lock.slowOpen()
 
         led.state = !dpadToggle.state
+
+        if(opm.gamepad1.b) goToRaised()
     }
     override fun telemetry() {
         opm.telemetry.addLine("LIFT")
@@ -89,6 +92,34 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
     fun completelyRaiseLift(pow: Double) {
         while(!lowerTouchSensor.state) {
             raiseLift(pow)
+        }
+        raiseLift(0.0)
+    }
+    fun completelyLowerLift(pow: Double) {
+        while(!upperTouchSensor.state) {
+            lowerLift(pow)
+        }
+        raiseLift(0.0)
+    }
+
+//    fun goToRaised() {
+//        liftMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+//        liftMotor.power = 0.7
+//        liftMotor.targetPosition = C4PropFile.getInt("liftUpPosition")
+//
+//        while(liftMotor.isBusy) {
+//            if(lowerTouchSensor.state || opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right) {
+//                liftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+//                liftMotor.power = 0.0
+//
+//            }
+//        }
+//        liftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+//        liftMotor.power = 0.0
+//    }
+    fun goToRaised() {
+        while(liftMotor.currentPosition < C4PropFile.getInt("liftUpPosition")) {
+        liftMotor.power = 0.3
         }
         raiseLift(0.0)
     }

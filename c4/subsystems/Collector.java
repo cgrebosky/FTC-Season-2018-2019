@@ -69,11 +69,12 @@ public class Collector extends SubSystem {
         }
 
 
-        //Negative extends outward
-        double pow = getOpm().gamepad2.left_trigger - getOpm().gamepad2.right_trigger;
+        //Positive extends outward
+        double pow = -getOpm().gamepad2.left_trigger + getOpm().gamepad2.right_trigger;
 
-        if(extender.getCurrentPosition() <= -3000 && pow < 0) pow = 0;
-        if(extender.getCurrentPosition() >= -80 && pow > 0) pow = 0;
+        if(extender.getCurrentPosition() <= 30 && pow < 0) pow = 0;
+        if(extender.getCurrentPosition() >= 1450 && pow > 0) pow = 0;
+        if(extender.getCurrentPosition() <= 300 && extender.getCurrentPosition() > 30 && pow < 0) pow /= 3;
 
         extender.setPower(pow);
 
@@ -113,13 +114,21 @@ public class Collector extends SubSystem {
     }
 
     public void collect() {
-        spinner.setPower(collectorSpeed);
+        spinner.setPower(-collectorSpeed);
     }
     public void push() {
-        spinner.setPower(-collectorSpeed);
+        spinner.setPower(collectorSpeed);
     }
     public void zero() {
         spinner.setPower(0.0);
+    }
+    @AutoMethod public void extend() {
+        while (extender.getCurrentPosition() < 800) extender.setPower(0.7);
+        extender.setPower(0.0);
+    }
+    @AutoMethod public void retract() {
+        while (extender.getCurrentPosition() > 100) extender.setPower(-0.5);
+        extender.setPower(0.0);
     }
 
 }
