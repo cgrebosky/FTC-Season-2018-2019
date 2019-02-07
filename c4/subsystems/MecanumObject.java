@@ -215,8 +215,9 @@ public class MecanumObject extends SubSystem {
      */
     private void moveFree() {
         double rightStickX = -scaleControllerInput(getOpm().gamepad1.right_stick_x);//read in scaled gamepad values
-        double rightStickY = scaleControllerInput(-getOpm().gamepad1.right_stick_y);
-        double leftStickX = scaleControllerInput(getOpm().gamepad1.left_stick_x);
+        double rightStickY = scaleControllerInput(getOpm().gamepad1.right_stick_y);
+        double leftStickX = Math.abs(getOpm().gamepad1.left_stick_x) > 0.2?
+                getOpm().gamepad1.left_stick_x : 0;
 
         double linearVelocityAngle = 0;
         double linearVelocityMagnitude = 0;

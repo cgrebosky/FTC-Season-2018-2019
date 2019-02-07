@@ -9,9 +9,13 @@ import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.Servo
 
 class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
+    private var liftUpPosition = C4PropFile.getInt("liftUpPosition")
+
+    private var raisingFlag = false
+
     public lateinit var liftMotor: DcMotor
 
-    private lateinit var lowerTouchSensor: DigitalChannel
+    public lateinit var lowerTouchSensor: DigitalChannel
     private lateinit var upperTouchSensor: DigitalChannel
     private lateinit var lock: UniversalFlicker
     private lateinit var led: DigitalChannel
@@ -45,16 +49,19 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         if(upperTouchSensor.state && pow < 0)
             pow = 0.0
 
-        liftMotor.power = pow
-
-
         dpadToggle.toggle(opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right)
         if(dpadToggle.state) lock.slowClose()
         else lock.slowOpen()
 
         led.state = !dpadToggle.state
 
-        if(opm.gamepad1.b) goToRaised()
+        if(opm.gamepad1.b && pow == 0.0) raisingFlag = true
+        if(liftMotor.currentPosition >= liftUpPosition) raisingFlag = false
+        if(raisingFlag && liftMotor.currentPosition < liftUpPosition) {
+            liftMotor.power = 0.6
+        } else {
+            liftMotor.power = pow
+        }
     }
     override fun telemetry() {
         opm.telemetry.addLine("LIFT")
@@ -102,23 +109,8 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
         raiseLift(0.0)
     }
 
-//    fun goToRaised() {
-//        liftMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-//        liftMotor.power = 0.7
-//        liftMotor.targetPosition = C4PropFile.getInt("liftUpPosition")
-//
-//        while(liftMotor.isBusy) {
-//            if(lowerTouchSensor.state || opm.gamepad2.dpad_up || opm.gamepad2.dpad_up || opm.gamepad2.dpad_left || opm.gamepad2.dpad_right) {
-//                liftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-//                liftMotor.power = 0.0
-//
-//            }
-//        }
-//        liftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-//        liftMotor.power = 0.0
-//    }
     fun goToRaised() {
-        while(liftMotor.currentPosition < C4PropFile.getInt("liftUpPosition")) {
+        while(liftMotor.currentPosition < liftUpPosition) {
         liftMotor.power = 0.3
         }
         raiseLift(0.0)

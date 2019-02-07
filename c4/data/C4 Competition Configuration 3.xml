@@ -22,7 +22,7 @@
             <NeveRest20Gearmotor name="drive_bl" port="1" />
             <NeveRest20Gearmotor name="drive_fr" port="2" />
             <NeveRest20Gearmotor name="drive_br" port="3" />
-            <Servo name="test" port="0" />
+            <Servo name="flicker_right" port="0" />
             <ContinuousRotationServo name="collector_spinner" port="1" />
             <Servo name="latch_right" port="3" />
             <LynxEmbeddedIMU name="imu 1" port="0" bus="0" />

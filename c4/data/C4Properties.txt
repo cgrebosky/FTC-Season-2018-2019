@@ -1,67 +1,53 @@
-//flicker
-flickerLeftClosed: 0.21
-flickerLeftOpen: 0.72
-flickerRightClosed: 0.615
-flickerRightOpen: 0.02
-cameraOut: 0.67
-
-//collector
-collectorSpeed: 0.8
-collectorLowered: 1620
-collectorRaised: 450
-hover: 1450
-hingeSpeed: 0.7
-autoHingeSpeed: 0.3
-
-//depositor
-leftLatchOpen: 0.9
-leftLatchClosed: 0.7
-rightLatchOpen: 0.25
-rightLatchClosed: 0.5
-
-//vision
-cameraClosed: 0.4
-cameraOpen: 0.83
-bottomThresh: 550 //550 for 6, 800 for other
-heightThresh: 60
-conf: 0.1
-
-//auto
-errCoef: -0.0025
-pow: 0.333333
-stall: 0.065
-
-backMid: 1450
-backSides: 2100
-fwdSides: 900
-
-//farside
-farTurn1: 80
-farBack1: 6200
-farTurn2: 50
-farBack2: 1000
-
-//nearside
-nearDiff: 1800
-nearTurn1: 85
-nearBack1: 5900
-nearTurn2: 40
-nearBack2: 2800
-nearTurn3: 10
-nearBack3: 400
-nearFwd1: 6300
-nearEndDir: 330
-
-//lift
-lockOpen: 0.3
-lockClosed: 0.16
-liftUpPosition: 3030
-
-
-depositorUp: -1150
-depositorHover: -50
-depositorDown: 0
-depositorPower: 1
-depositorDiv: 1000
-depositorExp: 1.3
-depositorDownPower: 0.3
+// Last updated: Wed Feb 06 18:16:00 PST 2019
+autoHingeSpeed:0.3
+backMid:1450
+backSides:2100
+bottomThresh:550
+cameraClosed:0.4
+cameraOpen:0.83
+cameraOut:0.67
+collectorLowered:1620
+collectorRaised:450
+collectorSpeed:0.8
+conf:0.1
+depositorDiv:1000
+depositorDown:0
+depositorDownPower:0.3
+depositorExp:1.3
+depositorHover:-50
+depositorPower:1
+depositorUp:-1150
+errCoef:-0.0025
+extenderErr:0
+farBack1:5600
+farBack2:2500
+farTurn1:65
+farTurn2:65
+flickerLeftClosed:0.21
+flickerLeftOpen:0.8
+flickerRightClosed:0.93
+flickerRightOpen:0.25
+fwdSides:900
+heightThresh:60
+hingeErr:0
+hingeSpeed:1
+hover:1450
+leftLatchClosed:0.7
+leftLatchOpen:0.9
+liftErr:-1165
+liftUpPosition:2900
+lockClosed:0.16
+lockOpen:0.3
+nearBack1:6550
+nearBack2:2000
+nearBack3:400
+nearDiff:2000
+nearEndDir:330
+nearFwd1:4500
+nearTurn1:85
+nearTurn2:40
+nearTurn3:10
+pow:0.333333
+rightLatchClosed:0.5
+rightLatchOpen:0.25
+stall:0.065

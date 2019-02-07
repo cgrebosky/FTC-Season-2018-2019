@@ -138,8 +138,11 @@ public class C4PropFile {
 
     /**
      * Write current hashtable to our file.
+     *
+     * This is VERY dangerous (I.E., it could remove our current hashtable if not properly loaded beforehand)
+     * & should never be used without proper safety
      */
-    private static void writeFile() {
+    public static void writeFile() {
         if ( ht == null ) return;
         try {
             // create file

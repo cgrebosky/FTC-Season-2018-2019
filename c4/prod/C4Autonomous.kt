@@ -11,10 +11,6 @@ import javax.annotation.processing.SupportedSourceVersion
 @Autonomous(name = "C4 Autonomous", group = "Prod")
 class C4Autonomous: LinearOpMode() {
 
-    init {
-        C4PropFile.loadPropFile()
-    }
-
     private enum class Sides { RED, BLUE }
     private enum class Positions { FAR, NEAR } //far/near with respect to the crater.
     private var position: Positions? = null
@@ -32,10 +28,10 @@ class C4Autonomous: LinearOpMode() {
 
     override fun runOpMode() {
         try {
+            initProperties()
             initAll()
 
             driverChoosing()
-
             hang()
 
             telemetry.addLine("Ready")
@@ -44,9 +40,6 @@ class C4Autonomous: LinearOpMode() {
             waitForStart()
 
             releaseFromLander()
-
-            //TODO: Make arms go up for autonomous
-
 
             //region vision processing
             telemetry.addLine("Unfolding camera")
@@ -71,7 +64,7 @@ class C4Autonomous: LinearOpMode() {
             var right = 0
             var n = 0
 
-            while(time - t < 3 && opModeIsActive()) {
+            while(time - t < 1 && opModeIsActive()) {
                 p = vision.detectMinerals()
 
                 telemetry.addLine("Current Position: $p")
@@ -103,6 +96,7 @@ class C4Autonomous: LinearOpMode() {
 
             if(p == ResourceDetector.GoldBlockPosition.MIDDLE) {
                 collector.goToHovering()
+                sleep(2000)
             }
 
             if(position == Positions.NEAR) {
@@ -190,6 +184,7 @@ class C4Autonomous: LinearOpMode() {
                 mecanum.turnDegrees(C4PropFile.getDouble("farTurn1"))
                 mecanum.backTicks(C4PropFile.getInt("farBack1"))
                 mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
+                mecanum.backTicks(C4PropFile.getInt("farBack2"))
 
                 mecanum.setMotorPowers(0.25, 30.0, 0.0)
                 collector.goToLowered()
@@ -231,6 +226,8 @@ class C4Autonomous: LinearOpMode() {
             telemetry.addLine("Press X to toggle & Y to choose your option")
             telemetry.addLine("Position: $position")
             telemetry.update()
+
+            if(isStopRequested) throw SubSystem.OpModeStopException()
         }
 
         if(position == Positions.NEAR) {
@@ -242,6 +239,8 @@ class C4Autonomous: LinearOpMode() {
                 telemetry.addLine("Press X to toggle & Y to choose your option")
                 telemetry.addLine("Simple Crater: $simpleCrater")
                 telemetry.update()
+
+                if(isStopRequested) throw SubSystem.OpModeStopException()
             }
         }
     }
@@ -250,14 +249,32 @@ class C4Autonomous: LinearOpMode() {
      * allows us to control the robot, starting the hanging routine, and following that hangs statically
      */
     fun hang() {
+        mecanum.init()
         while(!aControlled.press(gamepad1.y) && !isStopRequested) {
             lift.loop()
+            mecanum.loop()
 
             telemetry.addLine("Now make the robot hang;  Right trigger to raise")
             telemetry.addLine("Press Y to finalize your power.")
             telemetry.addLine("Current Power: ${lift.liftMotor.power}")
             telemetry.update()
+
+            if(isStopRequested) throw SubSystem.OpModeStopException()
         }
+    }
+
+    /**
+     * This initializes the prop file errors.  This means that our robot must be set up perfectly at
+     * the beginning of autonomous, not when the app restarts.  We can also change these values via
+     * EncoderCalibrator.kt
+     */
+    fun initProperties() {
+        collector.init() //We need to init this to get the currentPosition.  We will reinit this later to update the errors
+
+        C4PropFile.loadPropFile()
+        C4PropFile.set("hingeErr", "" + collector.hinge.currentPosition)
+        C4PropFile.set("extenderErr", "" + collector.extender.currentPosition)
+        C4PropFile.writeFile()
     }
 
     /**
@@ -287,14 +304,20 @@ class C4Autonomous: LinearOpMode() {
      */
     fun releaseFromLander() {
         lift.goToRaised()
+
+
+        mecanum.setMotorPowers(-0.3, 90.0, 0.0)
+        sleep(100)
+
+
         Thread.sleep(300)
-        mecanum.setMotorPowers(-0.3, 0.0, 0.0)
+        mecanum.setMotorPowers(0.3, 165.0, 0.0)
         Thread.sleep(500);
         mecanum.backTicks(500)
         mecanum.setMotorPowers(0.3,0.0,0.0)
-        Thread.sleep(350)
+        Thread.sleep(600)
         mecanum.setMotorPowers(0.0,0.0,0.0)
-        mecanum.fwdTicks(100)
+        mecanum.fwdTicks(500)
 
 
     }

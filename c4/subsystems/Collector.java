@@ -23,11 +23,11 @@ public class Collector extends SubSystem {
 
     private CRServo spinner;
     public DcMotor hinge;
-    private DcMotor extender;
+    public DcMotor extender;
 
     private double collectorSpeed = C4PropFile.getDouble("collectorSpeed");
-    public double loweredPosition = C4PropFile.getDouble("collectorLowered");
-    public double raisedPosition = C4PropFile.getDouble("collectorRaised");
+    public double loweredPosition = C4PropFile.getDouble("collectorLowered") + C4PropFile.getInt("hingeErr");
+    public double raisedPosition = C4PropFile.getDouble("collectorRaised") + C4PropFile.getInt("hingeErr");
     private double hingeSpeed = C4PropFile.getDouble("hingeSpeed");
 
     private ControllerHelper aPress = new ControllerHelper();
@@ -72,9 +72,10 @@ public class Collector extends SubSystem {
         //Positive extends outward
         double pow = -getOpm().gamepad2.left_trigger + getOpm().gamepad2.right_trigger;
 
-        if(extender.getCurrentPosition() <= 30 && pow < 0) pow = 0;
-        if(extender.getCurrentPosition() >= 1450 && pow > 0) pow = 0;
-        if(extender.getCurrentPosition() <= 300 && extender.getCurrentPosition() > 30 && pow < 0) pow /= 3;
+        if(extender.getCurrentPosition() <= 30 + C4PropFile.getInt("extenderErr") && pow < 0) pow = 0;
+        if(extender.getCurrentPosition() >= 1450 + C4PropFile.getInt("extenderErr") && pow > 0) pow = 0;
+        if(extender.getCurrentPosition() <= 300 + C4PropFile.getInt("extenderErr") &&
+                extender.getCurrentPosition() > 30 + C4PropFile.getInt("extenderErr") && pow < 0) pow /= 3;
 
         extender.setPower(pow);
 
@@ -99,7 +100,7 @@ public class Collector extends SubSystem {
     }
     private void goToFolded() {
         hinge.setPower(hingeSpeed);
-        hinge.setTargetPosition(0);
+        hinge.setTargetPosition(C4PropFile.getInt("hingeErr"));
         currentPosition = CollectorPosition.FOLDED;
     }
     public void goToLowered() {
@@ -123,7 +124,7 @@ public class Collector extends SubSystem {
         spinner.setPower(0.0);
     }
     @AutoMethod public void extend() {
-        while (extender.getCurrentPosition() < 800) extender.setPower(0.7);
+        while (extender.getCurrentPosition() < 1100) extender.setPower(0.7);
         extender.setPower(0.0);
     }
     @AutoMethod public void retract() {
