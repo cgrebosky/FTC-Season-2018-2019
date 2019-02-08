@@ -26,175 +26,42 @@ class C4Autonomous: LinearOpMode() {
     private val vision = ResourceDetector(lop = this, opm = this as OpMode)
     private val depositor = MineralDepositor(this, this)
 
+    private var p: ResourceDetector.GoldBlockPosition? = null
+
     override fun runOpMode() {
         try {
-            initProperties()
+            //region init
+            telePrint("INITIALIZING")
             initAll()
+
+            telePrint("ZEROING ENCODERS")
+            initProperties()
 
             driverChoosing()
             hang()
 
-            telemetry.addLine("Ready")
-            telemetry.update()
-
+            telePrint("READY")
+            //endregion init
             waitForStart()
 
             releaseFromLander()
 
-            //region vision processing
-            telemetry.addLine("Unfolding camera")
-            telemetry.update()
-
-            vision.openCamera()
-
-            telemetry.addLine("Vision")
-            telemetry.update()
-
-            vision.activateTF()
-
-            while (vision.detectMinerals() == null);
-            sleep(1500) //Wait for it to get the image - it starts out with a black screen
-            // and defaults to right, so we have to delay here
-
-            var p: ResourceDetector.GoldBlockPosition? = null
-            val t = time
-
-            var left = 0
-            var mid = 0
-            var right = 0
-            var n = 0
-
-            while(time - t < 1 && opModeIsActive()) {
-                p = vision.detectMinerals()
-
-                telemetry.addLine("Current Position: $p")
-                telemetry.update()
-
-                if(p == ResourceDetector.GoldBlockPosition.LEFT) left++
-                if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mid++
-                if(p == ResourceDetector.GoldBlockPosition.RIGHT) right++
-                if(p == null) n++
-            }
-
-            telemetry.addData("Left", left)
-            telemetry.addData("Mid", mid)
-            telemetry.addData("Right", right)
-            telemetry.addData("Nulls", n)
-
-            if(left > mid && left > right) p = ResourceDetector.GoldBlockPosition.LEFT
-            else if(mid > left && mid > right) p = ResourceDetector.GoldBlockPosition.MIDDLE
-            else if(right > mid && right > left) p = ResourceDetector.GoldBlockPosition.RIGHT
-            else p = ResourceDetector.GoldBlockPosition.RIGHT //Default to right
-
-            telemetry.addData("Position", p)
-            telemetry.update()
-
-            vision.closeCamera()
-            //endregion vision processing
+            detectMineral()
 
             sleep(300)
 
-            if(p == ResourceDetector.GoldBlockPosition.MIDDLE) {
-                collector.goToHovering()
-                sleep(2000)
-            }
+            sleep(1000)
 
             if(position == Positions.NEAR) {
-
-                if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(C4PropFile.getInt("backMid"))
-                else {
-                    mecanum.backTicks(C4PropFile.getInt("backSides"))
-                }
-
-                if(p==ResourceDetector.GoldBlockPosition.LEFT) flicker.leftFlicker.fastOpen()
-                if(p==ResourceDetector.GoldBlockPosition.RIGHT) flicker.rightFlicker.fastOpen()
-
-                sleep(1000)
-
-                flicker.leftFlicker.slowClose()
-                flicker.rightFlicker.slowClose()
-                collector.goToRaised()
-
-                sleep(500)
-
-                if (simpleCrater) {
-                    if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(700)
-
-                    collector.goToLowered()
-                } else {
-
-                    if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.fwdTicks(C4PropFile.getInt("backMid") - C4PropFile.getInt("nearDiff"))
-                    else mecanum.fwdTicks(C4PropFile.getInt("backSides") - C4PropFile.getInt("nearDiff"))
-
-                    mecanum.turnDegrees(C4PropFile.getDouble("nearTurn1"))
-
-                    mecanum.backTicks(C4PropFile.getInt("nearBack1"))
-                    mecanum.turnDegrees(C4PropFile.getDouble("nearTurn2"))
-                    mecanum.backTicks(C4PropFile.getInt("nearBack2"))
-                    mecanum.turnDegrees(C4PropFile.getDouble("nearTurn3"))
-                    mecanum.backTicks(C4PropFile.getInt("nearBack3"))
-
-                    collector.goToHovering()
-
-                    sleep(500)
-
-                    flicker.leftFlicker.slowClose()
-                    flicker.rightFlicker.slowClose()
-
-                    sleep(1000)
-                    collector.push()
-                    sleep(2500)
-                    collector.zero()
-                    collector.goToRaised()
-                    sleep(1000)
-
-                    mecanum.fwdTicks(C4PropFile.getInt("nearFwd1"))
-                    mecanum.setMotorPowers(0.25, C4PropFile.getDouble("nearEndDir"), 0.0)
-                    sleep(2000)
-                    mecanum.zero()
-
-
-                }
+                nearPath()
             } else {
-                mecanum.backTicks(C4PropFile.getInt("backSides"))
-
-                sleep(1000)
-
-                collector.goToHovering()
-
-                if(p==ResourceDetector.GoldBlockPosition.LEFT) flicker.leftFlicker.fastOpen()
-                if(p==ResourceDetector.GoldBlockPosition.RIGHT) flicker.rightFlicker.fastOpen()
-
-                sleep(1000)
-
-                flicker.leftFlicker.slowClose()
-                flicker.rightFlicker.slowClose()
-
-                collector.extend()
-                sleep(2000)
-                collector.push()
-                sleep(1500)
-                collector.zero()
-                collector.goToRaised()
-                collector.retract()
-                sleep(1000)
-
-                mecanum.fwdTicks(C4PropFile.getInt("fwdSides"))
-
-                mecanum.turnDegrees(C4PropFile.getDouble("farTurn1"))
-                mecanum.backTicks(C4PropFile.getInt("farBack1"))
-                mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
-                mecanum.backTicks(C4PropFile.getInt("farBack2"))
-
-                mecanum.setMotorPowers(0.25, 30.0, 0.0)
-                collector.goToLowered()
-                sleep(2000)
-                mecanum.zero()
+                farPath()
             }
 
             stopAll()
         } catch (e: SubSystem.OpModeStopException) {
             Trace.log("Autonomous stopped prematurely")
+            telePrint("Autonomous stopped prematurely")
             stopAll()
         }
     }
@@ -264,19 +131,21 @@ class C4Autonomous: LinearOpMode() {
     }
 
     /**
-     * This initializes the prop file errors.  This means that our robot must be set up perfectly at
-     * the beginning of autonomous, not when the app restarts.  We can also change these values via
-     * EncoderCalibrator.kt
+     * This initializes the encoders to 0, so our robot must be in completely folded state to start
      */
     fun initProperties() {
-        collector.init() //We need to init this to get the currentPosition.  We will reinit this later to update the errors
+        lift.liftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        lift.liftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        C4PropFile.loadPropFile()
-        C4PropFile.set("hingeErr", "" + collector.hinge.currentPosition)
-        C4PropFile.set("extenderErr", "" + collector.extender.currentPosition)
-        C4PropFile.writeFile()
+        depositor.arms.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        depositor.arms.mode = DcMotor.RunMode.RUN_USING_ENCODER
+
+        collector.extender.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        collector.extender.mode = DcMotor.RunMode.RUN_USING_ENCODER
+
+        collector.hinge.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        collector.hinge.mode = DcMotor.RunMode.RUN_TO_POSITION
     }
-
     /**
      * Initailize all our components / subsystems
      */
@@ -299,6 +168,7 @@ class C4Autonomous: LinearOpMode() {
         vision.stop()
         depositor.stop()
     }
+
     /**
      * Lower the robot from the lander and release it.
      */
@@ -321,5 +191,167 @@ class C4Autonomous: LinearOpMode() {
 
 
     }
+    /**
+     * Just print something & update automatically.
+     */
+    fun telePrint(msg: String) {
+        telemetry.addLine(msg)
+        telemetry.update()
+    }
+    /**
+     * Detect mineral & return the GoldBlockPosition from it
+     */
+    private fun detectMineral() {
+        telePrint("UNFOLDING CAMERA")
 
+        vision.openCamera()
+        sleep(500)
+
+        telePrint("ACTIVATING TENSORFLOW / VUFORIA")
+
+        vision.activateTF()
+
+        while (vision.detectMinerals() == null);
+
+        val t = time
+
+        var left = 0
+        var mid = 0
+        var right = 0
+        var n = 0
+
+        while(time - t < 3 && opModeIsActive()) {
+            p = vision.detectMinerals()
+
+            telemetry.addLine("Current Position: $p")
+            telemetry.update()
+
+            if(p == ResourceDetector.GoldBlockPosition.LEFT) left++
+            if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mid++
+            if(p == ResourceDetector.GoldBlockPosition.RIGHT) right++
+            if(p == null) n++
+        }
+
+        telemetry.addData("Left", left)
+        telemetry.addData("Mid", mid)
+        telemetry.addData("Right", right)
+        telemetry.addData("Nulls", n)
+
+        if(left > mid && left > right) p = ResourceDetector.GoldBlockPosition.LEFT
+        else if(mid > left && mid > right) p = ResourceDetector.GoldBlockPosition.MIDDLE
+        else if(right > mid && right > left) p = ResourceDetector.GoldBlockPosition.RIGHT
+        else p = ResourceDetector.GoldBlockPosition.RIGHT //Default to right
+
+        telemetry.addData("Position", p)
+        telemetry.update()
+
+        vision.closeCamera()
+
+        if(p == ResourceDetector.GoldBlockPosition.MIDDLE) {
+            collector.goToHovering()
+            sleep(1000)
+        }
+
+
+    }
+
+    /**
+     * Do the near path
+     */
+    fun nearPath() {
+        if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(C4PropFile.getInt("backMid"))
+        else {
+            mecanum.backTicks(C4PropFile.getInt("backSides"))
+        }
+
+        if(p==ResourceDetector.GoldBlockPosition.LEFT) flicker.leftFlicker.fastOpen()
+        if(p==ResourceDetector.GoldBlockPosition.RIGHT) flicker.rightFlicker.fastOpen()
+
+        sleep(1000)
+
+        flicker.leftFlicker.slowClose()
+        flicker.rightFlicker.slowClose()
+        collector.goToRaised()
+
+        sleep(500)
+
+        if (simpleCrater) {
+            if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(700)
+
+            collector.goToLowered()
+        } else {
+
+            if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.fwdTicks(C4PropFile.getInt("backMid") - C4PropFile.getInt("nearDiff"))
+            else mecanum.fwdTicks(C4PropFile.getInt("backSides") - C4PropFile.getInt("nearDiff"))
+
+            mecanum.turnDegrees(C4PropFile.getDouble("nearTurn1"))
+
+            mecanum.backTicks(C4PropFile.getInt("nearBack1"))
+            mecanum.turnDegrees(C4PropFile.getDouble("nearTurn2"))
+            mecanum.backTicks(C4PropFile.getInt("nearBack2"))
+            mecanum.turnDegrees(C4PropFile.getDouble("nearTurn3"))
+            mecanum.backTicks(C4PropFile.getInt("nearBack3"))
+
+            collector.goToHovering()
+
+            sleep(500)
+
+            flicker.leftFlicker.slowClose()
+            flicker.rightFlicker.slowClose()
+
+            sleep(1000)
+            collector.push()
+            sleep(2500)
+            collector.zero()
+            collector.goToRaised()
+            sleep(1000)
+
+            mecanum.fwdTicks(C4PropFile.getInt("nearFwd1"))
+            mecanum.setMotorPowers(0.25, C4PropFile.getDouble("nearEndDir"), 0.0)
+            sleep(2000)
+            mecanum.zero()
+
+
+        }
+    }
+    /**
+     * Do the far path
+     */
+    fun farPath() {
+        mecanum.backTicks(C4PropFile.getInt("backSides"))
+
+        sleep(1000)
+
+        collector.goToHovering()
+
+        if(p == ResourceDetector.GoldBlockPosition.LEFT) flicker.leftFlicker.fastOpen()
+        if(p == ResourceDetector.GoldBlockPosition.RIGHT) flicker.rightFlicker.fastOpen()
+        telePrint("position: $p")
+
+        sleep(1000)
+
+        flicker.leftFlicker.slowClose()
+        flicker.rightFlicker.slowClose()
+
+        collector.extend()
+        sleep(2000)
+        collector.push()
+        sleep(1500)
+        collector.zero()
+        collector.goToRaised()
+        collector.retract()
+        sleep(1000)
+
+        mecanum.fwdTicks(C4PropFile.getInt("fwdSides"))
+
+        mecanum.turnDegrees(C4PropFile.getDouble("farTurn1"))
+        mecanum.backTicks(C4PropFile.getInt("farBack1"))
+        mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
+        mecanum.backTicks(C4PropFile.getInt("farBack2"))
+
+        mecanum.setMotorPowers(0.25, 30.0, 0.0)
+        collector.goToLowered()
+        sleep(2000)
+        mecanum.zero()
+    }
 }

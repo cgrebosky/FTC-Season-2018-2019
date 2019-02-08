@@ -26,13 +26,6 @@ class EncoderCalibrator(): LinearOpMode() {
 
         calibrateExtender()
 
-        telemetry.addData("HINGE Position", C4PropFile.getInt("hingeErr"))
-        telemetry.addData("EXTENDER Position", C4PropFile.getInt("extenderErr"))
-        telemetry.update()
-
-        C4PropFile.writeFile()
-
-
         lift.stop()
         collector.stop()
     }
@@ -43,13 +36,14 @@ class EncoderCalibrator(): LinearOpMode() {
         while (opModeIsActive() && !gamepad1.y) {
             collector.hinge.power = (gamepad1.left_trigger - gamepad1.right_trigger).toDouble()
             telemetry.addLine("HINGE CALIBRATOR")
-            telemetry.addLine("Press Y to set value for HINGE")
+            telemetry.addLine("Move HINGE to folded position")
             telemetry.addData("Current Power", collector.hinge.power)
             telemetry.addData("Current Position", collector.hinge.currentPosition)
             telemetry.update()
         }
-        C4PropFile.set("hingeErr", "" + collector.hinge.currentPosition)
-        telemetry.addData("HINGE position set at", C4PropFile.getInt("hingeErr"))
+        collector.hinge.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        collector.hinge.mode = DcMotor.RunMode.RUN_TO_POSITION
+
         telemetry.update()
     }
 
@@ -57,14 +51,13 @@ class EncoderCalibrator(): LinearOpMode() {
         while (opModeIsActive() && !gamepad1.y) {
             collector.extender.power = (gamepad1.left_trigger - gamepad1.right_trigger).toDouble()
             telemetry.addLine("EXTENDER CALIBRATOR")
-            telemetry.addLine("Press Y to set value for EXTENDER")
+            telemetry.addLine("Move EXTENDER to closed position")
             telemetry.addData("Current Power", collector.hinge.power)
             telemetry.addData("Current Position", collector.extender.currentPosition)
             telemetry.update()
 
         }
-        C4PropFile.set("extenderErr", "" + collector.extender.currentPosition)
-        telemetry.addData("EXTENDER position set at", C4PropFile.getInt("extenderErr"))
-        telemetry.update()
+        collector.extender.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        collector.extender.mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
 }
