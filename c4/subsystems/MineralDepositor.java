@@ -86,11 +86,9 @@ public class MineralDepositor extends SubSystem {
         ));
     }
     private void goDown() {
-        //arms.setPower(pow * errPow(
-        //        C4PropFile.getInt("depositorDown") - arms.getCurrentPosition()
-        //));
 
-        if(arms.getCurrentPosition() < -150) arms.setPower(dpow);
+        if(arms.getCurrentPosition() < C4PropFile.getInt("depositorSlowThresh")) arms.setPower(dpow * C4PropFile.getDouble("depositorSlowCoef"));
+        else if(arms.getCurrentPosition() < C4PropFile.getInt("depositorSlowBottom")) arms.setPower(dpow);
         else arms.setPower(0);
     }
 

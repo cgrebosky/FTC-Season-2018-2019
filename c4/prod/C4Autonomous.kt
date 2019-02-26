@@ -278,7 +278,7 @@ class C4Autonomous: LinearOpMode() {
         if (simpleCrater) {
             if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.backTicks(700)
 
-            collector.goToLowered()
+            collector.goToHovering()
         } else {
 
             if(p == ResourceDetector.GoldBlockPosition.MIDDLE) mecanum.fwdTicks(C4PropFile.getInt("backMid") - C4PropFile.getInt("nearDiff"))
