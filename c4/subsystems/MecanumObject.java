@@ -216,7 +216,7 @@ public class MecanumObject extends SubSystem {
     private void moveFree() {
         double rightStickX = -scaleControllerInput(getOpm().gamepad1.right_stick_x);//read in scaled gamepad values
         double rightStickY = scaleControllerInput(getOpm().gamepad1.right_stick_y);
-        double leftStickX = Math.signum(getOpm().gamepad1.left_stick_x) * getOpm().gamepad1.left_stick_x * getOpm().gamepad1.left_stick_x;
+        double leftStickX = scaleTurn(getOpm().gamepad1.left_stick_x);
 
         double linearVelocityAngle = 0;
         double linearVelocityMagnitude = 0;
@@ -283,6 +283,10 @@ public class MecanumObject extends SubSystem {
 
     @Contract(pure = true) private double scaleControllerInput(double x) {
         return Math.pow(x, 3);
+    }
+    @Contract(pure = true) private double scaleTurn(double x) {
+        double a = Math.pow(Math.abs(x), 2.5);
+        return Math.signum(x) * a;
     }
 
     @AutoMethod public void turnLeft(double power) {

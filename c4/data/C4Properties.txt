@@ -1,67 +1,69 @@
-//flicker
+//FLICKER
 flickerLeftClosed: 0.21
 flickerLeftOpen: 0.8
 flickerRightClosed: 0.93
 flickerRightOpen: 0.25
 cameraOut: 0.67
 
-//collector
-collectorSpeed: 0.8
+//COLLECTOR
+collectorSpeed: 0.6
 collectorLowered: 1620
 collectorRaised: 450
 hover: 1450
 hingeSpeed: 1
 autoHingeSpeed: 0.5
 
-//depositor
+//DEPOSITOR
 leftLatchOpen: 0.9
 leftLatchClosed: 0.7
 rightLatchOpen: 0.25
 rightLatchClosed: 0.5
+depositorUp: -1150
+depositorHover: -50
+depositorDown: 0
+depositorPower: 1.5
+depositorDiv: 1000
+depositorExp: 1.3
+depositorDownPower: 0.7
+depositorSlowThresh: -1100
+depositorSlowBottom: -800
+depositorSlowCoef: 0.4
 
-//vision
+//LIFT
+lockOpen: 0.3
+lockClosed: 0.16
+liftUpPosition: 3370
+
+//VISION
 cameraClosed: 0.4
 cameraOpen: 0.855
-bottomThresh: 550 //550 for 6, 800 for other
+bottomThresh: 800 //550 for 6, 800 for other
 heightThresh: 60
 conf: 0.1
 
-//auto
-errCoef: -0.0025
+//AUTONOMOUS
+errCoef: -0.0015
 pow: 0.333333
 stall: 0.065
 
+//BOTH
 backMid: 1450
 backSides: 2100
 fwdSides: 900
 
-//farside
-farTurn1: 65
+//FAR (from crater)
+farTurn1: 60
 farBack1: 5600
 farTurn2: 60
 farBack2: 1750
 
-//nearside
-nearDiff: 1900
-nearTurn1: 75
+//NEAR (to crater)
+nearDiff: 1700
+nearTurn1: 73
 nearBack1: 6030
 nearTurn2: 50
 nearBack2: 1000
-nearTurn3: 10
+nearTurn3: 9
 nearBack3: 2200
-nearFwd1: 6300
+nearFwd1: 6250
 nearEndDir: 330
-
-//lift
-lockOpen: 0.3
-lockClosed: 0.16
-liftUpPosition: 2900
-
-
-depositorUp: -1150
-depositorHover: -50
-depositorDown: 0
-depositorPower: 1
-depositorDiv: 1000
-depositorExp: 1.3
-depositorDownPower: 0.3
