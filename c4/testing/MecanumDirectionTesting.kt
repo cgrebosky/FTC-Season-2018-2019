@@ -1,9 +1,10 @@
-package c4.subsystems
+package c4.testing
 
+import c4.subsystems.MecanumObject
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 
-@TeleOp(name = "Mecanum Directional Testing")
+@TeleOp(name = "Mecanum Directional Testing", group = "Testing")
 class MecanumDirectionTesting: OpMode() {
     val m = MecanumObject(this)
 

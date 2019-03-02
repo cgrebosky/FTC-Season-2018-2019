@@ -1,31 +1,18 @@
-package c4.testing
+package c4.prod
 
 import c4.subsystems.Collector
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DigitalChannel
-import com.sun.tools.javac.api.DiagnosticFormatter
 
-@TeleOp(name="TeleOpInitTest", group="Testing")
+@TeleOp(name="TeleOpInitTest", group="Prod")
 class TeleOpInit: LinearOpMode() {
 
     private lateinit var extenderLimit: DigitalChannel
     private lateinit var hingeLimit: DigitalChannel
 
     private val collector = Collector(this)
-
-//    override fun init() {
-//        extenderLimit = hardwareMap.get(DigitalChannel::class.java, "limit_extender")
-//        hingeLimit = hardwareMap.get(DigitalChannel::class.java, "limit_hinge")
-//    }
-//
-//    override fun loop() {
-//        telemetry.addData("Extender", extenderLimit.state)
-//        telemetry.addData("Hinge", hingeLimit.state)
-//        telemetry.update()
-//    }
 
     override fun runOpMode() {
         extenderLimit = hardwareMap.get(DigitalChannel::class.java, "limit_extender")

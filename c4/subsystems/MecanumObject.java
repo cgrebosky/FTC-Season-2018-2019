@@ -285,7 +285,7 @@ public class MecanumObject extends SubSystem {
         return Math.pow(x, 3);
     }
     @Contract(pure = true) private double scaleTurn(double x) {
-        double a = Math.pow(Math.abs(x), 2.5);
+        double a = Math.pow(Math.abs(x), 2.25);
         return Math.signum(x) * a;
     }
 
