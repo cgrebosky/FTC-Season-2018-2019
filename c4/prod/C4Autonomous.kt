@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DigitalChannel
 import javax.annotation.processing.SupportedSourceVersion
 
 @Autonomous(name = "C4 Autonomous", group = "Prod")
@@ -28,6 +29,9 @@ class C4Autonomous: LinearOpMode() {
 
     private var p: ResourceDetector.GoldBlockPosition? = null
 
+    private lateinit var extenderLimit: DigitalChannel
+    private lateinit var hingeLimit: DigitalChannel
+
     override fun runOpMode() {
         try {
             //region init
@@ -47,8 +51,6 @@ class C4Autonomous: LinearOpMode() {
             releaseFromLander()
 
             detectMineral()
-
-            sleep(300)
 
             sleep(1000)
 
@@ -134,6 +136,26 @@ class C4Autonomous: LinearOpMode() {
      * This initializes the encoders to 0, so our robot must be in completely folded state to start
      */
     fun initProperties() {
+        collector.hinge.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        collector.extender.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        lift.liftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+
+        while(!lift.upperTouchSensor.state || !extenderLimit.state || !hingeLimit.state) {
+            if(!extenderLimit.state)
+                collector.extender.power = -0.3
+
+            if(!hingeLimit.state)
+                collector.hinge.power = -0.2
+
+            if(!lift.upperTouchSensor.state)
+                lift.lowerLift(0.2)
+
+            if(isStopRequested) throw SubSystem.OpModeStopException()
+        }
+        collector.extender.power = 0.0
+        collector.hinge.power = 0.0
+        lift.lowerLift(0.0)
+
         lift.liftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         lift.liftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
@@ -156,6 +178,9 @@ class C4Autonomous: LinearOpMode() {
         collector.init()
         vision.init()
         depositor.init()
+
+        extenderLimit = hardwareMap.get(DigitalChannel::class.java, "limit_extender")
+        hingeLimit = hardwareMap.get(DigitalChannel::class.java, "limit_hinge")
     }
     /**
      * Stop all our components / subsystems
@@ -174,7 +199,6 @@ class C4Autonomous: LinearOpMode() {
      */
     fun releaseFromLander() {
         lift.goToRaised()
-
 
         mecanum.setMotorPowers(-0.3, 90.0, 0.0)
         sleep(100)

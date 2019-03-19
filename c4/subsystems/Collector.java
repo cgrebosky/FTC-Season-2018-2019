@@ -22,6 +22,7 @@ public class Collector extends SubSystem {
     public static CollectorPosition currentPosition = CollectorPosition.FOLDED;
 
     private CRServo spinner;
+    private Servo limiter;
     public DcMotor hinge;
     public DcMotor extender;
 
@@ -29,6 +30,8 @@ public class Collector extends SubSystem {
     public double loweredPosition = C4PropFile.getDouble("collectorLowered");
     public double raisedPosition = C4PropFile.getDouble("collectorRaised");
     private double hingeSpeed = C4PropFile.getDouble("hingeSpeed");
+    private double closed = C4PropFile.getDouble("collectorClosed");
+    private double open = C4PropFile.getDouble("collectorOpen");
 
     private ControllerHelper aPress = new ControllerHelper();
     private ControllerHelper bPress = new ControllerHelper();
@@ -48,6 +51,8 @@ public class Collector extends SubSystem {
         extender.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         spinner = getOpm().hardwareMap.crservo.get("collector_spinner");
+        limiter = getOpm().hardwareMap.servo.get("collector_limiter");
+        limiter.setPosition(closed);
     }
     @Override public void loop() {
         if(getOpm().gamepad2.right_bumper) collect();
@@ -97,16 +102,19 @@ public class Collector extends SubSystem {
         hinge.setPower(hingeSpeed);
         hinge.setTargetPosition((int) raisedPosition);
         currentPosition = CollectorPosition.RAISED;
+        limiter.setPosition(open);
     }
     private void goToFolded() {
         hinge.setPower(hingeSpeed);
         hinge.setTargetPosition(0);
         currentPosition = CollectorPosition.FOLDED;
+        limiter.setPosition(open);
     }
     public void goToLowered() {
         hinge.setPower(hingeSpeed);
         hinge.setTargetPosition(((int) loweredPosition));
         currentPosition = CollectorPosition.LOWERED;
+        limiter.setPosition(closed);
     }
     @AutoMethod public void goToHovering() {
         hinge.setPower(C4PropFile.getDouble("autoHingeSpeed"));

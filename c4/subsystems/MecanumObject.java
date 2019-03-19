@@ -236,6 +236,8 @@ public class MecanumObject extends SubSystem {
         }
 
         linearVelocityMagnitude = Range.clip((Math.sqrt(Math.pow(rightStickX, 2) + Math.pow(rightStickY, 2))), 0, 1);
+        if(Math.abs(linearVelocityMagnitude) < 0.05) linearVelocityMagnitude = 0;
+        if(Math.abs(leftStickX) < 0.05) leftStickX = 0;
 
         double angularVelocity = leftStickX;
         setMotorPowers(linearVelocityMagnitude, Math.toDegrees(linearVelocityAngle), angularVelocity);

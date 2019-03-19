@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DigitalChannel
 
-@TeleOp(name="TeleOpInitTest", group="Prod")
+@TeleOp(name="TeleOp Encoder Reset", group="Prod")
 class TeleOpInit: LinearOpMode() {
 
     private lateinit var extenderLimit: DigitalChannel

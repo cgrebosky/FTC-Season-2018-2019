@@ -1,4 +1,4 @@
-package c4.testing;
+package c4.testing.macro;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,7 +13,7 @@ import java.util.List;
 import c4.lib.Trace;
 import c4.subsystems.TankDrive;
 
-@TeleOp(name = "MacroRecorder", group = "Testing")
+//@TeleOp(name = "MacroRecorder", group = "Testing")
 public class MacroRecorder extends OpMode {
 
     public static final String filename = "MacroRecording";

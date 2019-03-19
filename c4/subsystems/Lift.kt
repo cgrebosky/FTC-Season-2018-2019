@@ -17,7 +17,7 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
     public lateinit var liftMotor: DcMotor
 
     public lateinit var lowerTouchSensor: DigitalChannel
-    private lateinit var upperTouchSensor: DigitalChannel
+    public lateinit var upperTouchSensor: DigitalChannel
     private lateinit var led: DigitalChannel
 
     private val dpadToggle = ControllerHelper()
@@ -46,7 +46,7 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
 
         if(opm.gamepad1.b && pow == 0.0) raisingFlag = true
         if(liftMotor.currentPosition >= liftUpPosition) raisingFlag = false
-        if(raisingFlag && liftMotor.currentPosition < liftUpPosition) {
+        if(raisingFlag && liftMotor.currentPosition < liftUpPosition && !lowerTouchSensor.state) {
             liftMotor.power = 0.6
         } else {
             liftMotor.power = pow
@@ -99,7 +99,8 @@ class Lift(lop: LinearOpMode? = null, opm: OpMode): SubSystem(lop, opm) {
     }
 
     fun goToRaised() {
-        while(liftMotor.currentPosition < liftUpPosition) {
+        val t = System.currentTimeMillis()
+        while(liftMotor.currentPosition < liftUpPosition || System.currentTimeMillis() - t > 4000) {
         liftMotor.power = 0.3
         }
         raiseLift(0.0)

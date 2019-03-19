@@ -1,9 +1,8 @@
-package c4.testing;
+package c4.testing.macro;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,7 +12,7 @@ import java.util.LinkedList;
 import c4.subsystems.SubSystem;
 import c4.subsystems.TankDrive;
 
-@Autonomous(name = "Macro Player", group = "Testing")
+//@Autonomous(name = "Macro Player", group = "Testing")
 public class MacroPlayer extends LinearOpMode {
     TankDrive td = new TankDrive(this, (OpMode) this);
 
