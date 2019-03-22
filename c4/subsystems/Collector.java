@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.ResourceBundle;
@@ -75,6 +76,7 @@ public class Collector extends SubSystem {
         }
 
 
+
         //Positive extends outward
         double pow = -getOpm().gamepad2.left_trigger + getOpm().gamepad2.right_trigger;
 
@@ -83,7 +85,6 @@ public class Collector extends SubSystem {
         if(extender.getCurrentPosition() <= 300 && extender.getCurrentPosition() > 30 && pow < 0) pow /= 3;
 
         extender.setPower(pow);
-
 
     }
     @Override public void telemetry() {
@@ -106,7 +107,7 @@ public class Collector extends SubSystem {
     }
     private void goToFolded() {
         hinge.setPower(hingeSpeed);
-        hinge.setTargetPosition(0);
+        hinge.setTargetPosition(40);
         currentPosition = CollectorPosition.FOLDED;
         limiter.setPosition(open);
     }
