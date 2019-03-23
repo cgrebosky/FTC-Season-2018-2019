@@ -22,6 +22,9 @@ public class Collector extends SubSystem {
 
     public static CollectorPosition currentPosition = CollectorPosition.FOLDED;
 
+    private CollectorPosition lastPosition = CollectorPosition.FOLDED;
+    private long raiseTime = 0L;
+
     private CRServo spinner;
     private Servo limiter;
     public DcMotor hinge;
@@ -63,6 +66,7 @@ public class Collector extends SubSystem {
         aPress.press(getOpm().gamepad2.a);
         bPress.press(getOpm().gamepad2.b);
 
+        lastPosition = currentPosition;
         if(currentPosition == CollectorPosition.RAISED) {
             if(aPress.getState()) goToLowered();
             else if(bPress.getState()) goToFolded();
@@ -75,7 +79,15 @@ public class Collector extends SubSystem {
             else if(bPress.getState()) goToRaised();
         }
 
-
+        if(lastPosition != CollectorPosition.RAISED && currentPosition == CollectorPosition.RAISED) {
+            raiseTime = System.currentTimeMillis() + 500;
+        }
+        if(lastPosition == CollectorPosition.RAISED && currentPosition != CollectorPosition.RAISED) {
+            raiseTime = System.currentTimeMillis() + 10_000_000;
+        }
+        if(System.currentTimeMillis() > raiseTime) {
+            limiter.setPosition(open);
+        } else limiter.setPosition(closed);
 
         //Positive extends outward
         double pow = -getOpm().gamepad2.left_trigger + getOpm().gamepad2.right_trigger;
@@ -103,13 +115,11 @@ public class Collector extends SubSystem {
         hinge.setPower(hingeSpeed);
         hinge.setTargetPosition((int) raisedPosition);
         currentPosition = CollectorPosition.RAISED;
-        limiter.setPosition(open);
     }
     private void goToFolded() {
         hinge.setPower(hingeSpeed);
         hinge.setTargetPosition(40);
         currentPosition = CollectorPosition.FOLDED;
-        limiter.setPosition(open);
     }
     public void goToLowered() {
         hinge.setPower(hingeSpeed);

@@ -374,7 +374,7 @@ class C4Autonomous: LinearOpMode() {
         mecanum.backTicks(C4PropFile.getInt("farBack2"))
 
         mecanum.setMotorPowers(0.25, 30.0, 0.0)
-        collector.goToLowered()
+        collector.goToHovering()
         sleep(2000)
         mecanum.zero()
     }
