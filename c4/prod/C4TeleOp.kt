@@ -83,7 +83,7 @@ class C4TeleOp: OpMode() {
             if(!hingeLimit.state) {
                 collector.hinge.mode = DcMotor.RunMode.RUN_USING_ENCODER
                 collector.hinge.power = -0.5
-            } else if(!hingeCalib) {
+            } else {
                 hingeCalib = true
                 collector.hinge.power = 0.0
                 collector.hinge.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER

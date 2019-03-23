@@ -5,12 +5,17 @@ import c4.subsystems.*
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.ColorSensor
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DigitalChannel
+import com.qualcomm.robotcore.hardware.DistanceSensor
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import javax.annotation.processing.SupportedSourceVersion
 
 @Autonomous(name = "C4 Autonomous", group = "Prod")
 class C4Autonomous: LinearOpMode() {
+
+    private lateinit var distanceSensor: DistanceSensor
 
     private enum class Sides { RED, BLUE }
     private enum class Positions { FAR, NEAR } //far/near with respect to the crater.
@@ -181,6 +186,8 @@ class C4Autonomous: LinearOpMode() {
 
         extenderLimit = hardwareMap.get(DigitalChannel::class.java, "limit_extender")
         hingeLimit = hardwareMap.get(DigitalChannel::class.java, "limit_hinge")
+
+        distanceSensor = hardwareMap.get(DistanceSensor::class.java, "distance")
     }
     /**
      * Stop all our components / subsystems
@@ -209,9 +216,9 @@ class C4Autonomous: LinearOpMode() {
         Thread.sleep(500);
         mecanum.backTicks(500)
         mecanum.setMotorPowers(0.3,0.0,0.0)
-        Thread.sleep(600)
+        Thread.sleep(700)
         mecanum.setMotorPowers(0.0,0.0,0.0)
-        mecanum.fwdTicks(500)
+        mecanum.fwdTicks(700)
 
 
     }
@@ -309,11 +316,11 @@ class C4Autonomous: LinearOpMode() {
             else mecanum.fwdTicks(C4PropFile.getInt("backSides") - C4PropFile.getInt("nearDiff"))
 
             mecanum.turnDegrees(C4PropFile.getDouble("nearTurn1"))
-
             mecanum.backTicks(C4PropFile.getInt("nearBack1"))
             mecanum.turnDegrees(C4PropFile.getDouble("nearTurn2"))
-            mecanum.backTicks(C4PropFile.getInt("nearBack2"))
-            mecanum.turnDegrees(C4PropFile.getDouble("nearTurn3"))
+            //mecanum.backTicks(C4PropFile.getInt("nearBack2"))
+            //mecanum.turnDegrees(C4PropFile.getDouble("nearTurn3"))
+            goToWall()
             mecanum.backTicks(C4PropFile.getInt("nearBack3"))
 
             collector.goToHovering()
@@ -367,15 +374,34 @@ class C4Autonomous: LinearOpMode() {
         sleep(1000)
 
         mecanum.fwdTicks(C4PropFile.getInt("fwdSides"))
-
         mecanum.turnDegrees(C4PropFile.getDouble("farTurn1"))
         mecanum.backTicks(C4PropFile.getInt("farBack1"))
         mecanum.turnDegrees(C4PropFile.getDouble("farTurn2"))
+        goToWall()
         mecanum.backTicks(C4PropFile.getInt("farBack2"))
 
         mecanum.setMotorPowers(0.25, 30.0, 0.0)
         collector.goToHovering()
         sleep(2000)
         mecanum.zero()
+    }
+
+    /**
+     * Go to the wall using distance sensor
+     */
+    fun goToWall() {
+        mecanum.setMotorPowers(0.3, 0.0, 0.0)
+        var running = true
+
+        val t = System.currentTimeMillis()
+
+        while (running) {
+            val d = distanceSensor.getDistance(DistanceUnit.INCH)
+            if (d < 6 || d == java.lang.Double.NaN || t + 1500 < System.currentTimeMillis()) running = false
+
+            telemetry.addData("Distance", d)
+            telemetry.update()
+        }
+        mecanum.setMotorPowers(0.0, 0.0, 0.0)
     }
 }

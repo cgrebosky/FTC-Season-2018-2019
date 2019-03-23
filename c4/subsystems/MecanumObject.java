@@ -34,7 +34,7 @@ public class MecanumObject extends SubSystem {
     private static double STALL_VALUE = C4PropFile.getDouble("stall");
 
     private static double AUTO_TURN_POWER = 0.4; //TODO: Read from C4Properties
-    private static double AUTO_STRAIGHT_POWER = 0.4;
+    private static double AUTO_STRAIGHT_POWER = 0.5;
 
     private DcMotor motorRF;
     private DcMotor motorLF;
