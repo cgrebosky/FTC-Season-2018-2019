@@ -1,10 +1,12 @@
 package c4.testing
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.DigitalChannelController
 
+@Disabled
 @TeleOp(name = "LED Testing", group = "Testing")
 class LEDTesting: OpMode() {
 

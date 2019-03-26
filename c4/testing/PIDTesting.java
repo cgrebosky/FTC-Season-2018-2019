@@ -1,5 +1,6 @@
 package c4.testing;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import c4.lib.C4PropFile;
 import c4.subsystems.Collector;
 
+@Disabled
 @TeleOp(name = "PID Testing", group = "Testing")
 public class PIDTesting extends OpMode {
 

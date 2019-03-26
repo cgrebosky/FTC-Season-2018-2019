@@ -1,10 +1,12 @@
 package c4.testing
 
 import c4.lib.ControllerHelper
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
 
+@Disabled
 @TeleOp(name="Servo Tester", group="Testing")
 class ServoTester: OpMode() {
 

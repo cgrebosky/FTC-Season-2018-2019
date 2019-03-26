@@ -1,6 +1,7 @@
 package c4.testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import c4.subsystems.MecanumObject;
 
+@Disabled
 @Autonomous(name = "Distance Sensor Test", group = "Testing")
 public class AutonomousDistanceSensorTesting extends LinearOpMode {
 

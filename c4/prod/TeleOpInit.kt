@@ -1,11 +1,13 @@
 package c4.prod
 
 import c4.subsystems.Collector
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DigitalChannel
 
+@Disabled
 @TeleOp(name="TeleOp Encoder Reset", group="Prod")
 class TeleOpInit: LinearOpMode() {
 
