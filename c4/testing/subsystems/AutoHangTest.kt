@@ -3,8 +3,10 @@ package c4.testing.subsystems
 import c4.subsystems.Lift
 import c4.subsystems.MecanumObject
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 
+@Disabled
 @Autonomous(name = "AutoHangTest", group ="Testing")
 class AutoHangTest: LinearOpMode() {
 

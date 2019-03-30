@@ -80,7 +80,7 @@ public class Collector extends SubSystem {
         }
 
         if(lastPosition != CollectorPosition.RAISED && currentPosition == CollectorPosition.RAISED) {
-            raiseTime = System.currentTimeMillis() + 500;
+            raiseTime = System.currentTimeMillis() + C4PropFile.getInt("raiseTime");
         }
         if(lastPosition == CollectorPosition.RAISED && currentPosition != CollectorPosition.RAISED) {
             raiseTime = System.currentTimeMillis() + 10_000_000;

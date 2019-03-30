@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.CRServo
 
+@Disabled
 @TeleOp(name = "Collector Testing", group = "Testing")
 class CollectorTesting: OpMode() {
 

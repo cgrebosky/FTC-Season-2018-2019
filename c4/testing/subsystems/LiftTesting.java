@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import c4.subsystems.Lift;
 
+@Disabled
 @TeleOp(name = "LiftTesting", group = "Testing")
 public class LiftTesting extends OpMode {
 

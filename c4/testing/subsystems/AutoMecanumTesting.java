@@ -1,11 +1,13 @@
 package c4.testing.subsystems;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import c4.lib.C4PropFile;
 import c4.subsystems.MecanumObject;
 
+@Disabled
 @Autonomous(name = "Auto MecanumTesting", group = "Testing")
 public class AutoMecanumTesting extends LinearOpMode {
 
