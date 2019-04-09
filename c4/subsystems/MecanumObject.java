@@ -36,10 +36,10 @@ public class MecanumObject extends SubSystem {
     private static double AUTO_TURN_POWER = 0.4; //TODO: Read from C4Properties
     private static double AUTO_STRAIGHT_POWER = 0.5;
 
-    private DcMotor motorRF;
-    private DcMotor motorLF;
-    private DcMotor motorRB;
-    private DcMotor motorLB;
+    public DcMotor motorRF;
+    public DcMotor motorLF;
+    public DcMotor motorRB;
+    public DcMotor motorLB;
 
     private double motorPowerFR;
     private double motorPowerFL;

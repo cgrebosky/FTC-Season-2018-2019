@@ -2,6 +2,7 @@ package c4.testing.subsystems
 
 import c4.lib.C4PropFile
 import c4.subsystems.Collector
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.CRServo
