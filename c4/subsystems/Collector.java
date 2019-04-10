@@ -25,8 +25,8 @@ public class Collector extends SubSystem {
     private CollectorPosition lastPosition = CollectorPosition.FOLDED;
     private long raiseTime = 0L;
 
-    private CRServo spinner;
-    private Servo limiter;
+    public CRServo spinner;
+    public Servo limiter;
     public DcMotor hinge;
     public DcMotor extender;
 

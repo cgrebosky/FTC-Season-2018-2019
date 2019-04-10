@@ -72,6 +72,14 @@ public class UniversalFlicker extends Thread {
     public synchronized void slowGoToValue(double val) {
         position = val;
     }
+    /**
+     * This rapidly moves the servo to a value.
+     * @param val The value which you will go to.  This must be in range of the servo
+     */
+    public synchronized void fastGoToValue(double val) {
+        servo.setPosition(val);
+        position = val;
+    }
 
     /**
      * Wait for a number of seconds then slowly open.  This is solely used for our arms, but I'm too
